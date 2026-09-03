@@ -1,0 +1,138 @@
+.searchContainer {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  margin-bottom: 30px;
+}
+
+.searchContainer h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: #1f2937;
+  font-size: 24px;
+}
+
+.searchBar {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.searchBar input, .searchBar select {
+  padding: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+  font-size: 15px;
+}
+
+.searchBar input {
+  flex: 2;
+}
+
+.searchBar select {
+  flex: 1;
+}
+
+.searchBar input:focus, .searchBar select:focus {
+  border-color: #1b4332;
+  box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.2);
+  background-color: white;
+}
+
+.searchBar button {
+  padding: 14px 24px;
+  background-color: #1b4332;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 6px rgba(27, 67, 50, 0.2);
+}
+
+.searchBar button:hover {
+  transform: translateY(-1px);
+  background-color: #0f281e;
+  box-shadow: 0 6px 8px rgba(27, 67, 50, 0.3);
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+.documentCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: all 0.2s ease-in-out;
+}
+
+.documentCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+  border-color: #d1d5db;
+}
+
+.documentCard h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #1f2937;
+  font-size: 18px;
+}
+
+.documentCard p {
+  color: #4b5563;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.documentCard strong {
+  color: #374151;
+}
+
+.documentCard button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  background-color: #f3f4f6;
+  color: #1b4332;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.documentCard button:hover {
+  background-color: #e5e7eb;
+  color: #0f281e;
+}
+
+@media (max-width: 768px) {
+  .searchBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .searchBar input,
+  .searchBar select,
+  .searchBar button {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px;
+    font-size: 16px;
+  }
+  .resultsGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}

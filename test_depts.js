@@ -1,0 +1,1 @@
+const db = require('./backend/db'); async function check() { try { const [rows1] = await db.execute('SELECT * FROM departments'); console.log('Trainees:', rows1); const [rows2] = await db.execute('SELECT * FROM staff_departments'); console.log('Staff:', rows2); process.exit(0); } catch(e) { console.error(e); process.exit(1); } } check();

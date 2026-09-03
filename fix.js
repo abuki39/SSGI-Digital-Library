@@ -1,0 +1,1 @@
+﻿const fs = require('fs'); ['App.css', 'components/Login.module.css', 'components/SearchDiscovery.module.css', 'components/LibrarianDashboard.module.css'].forEach(f => { const p = 'C:/SSGI/SSGI-SecureDoc/frontend/src/' + f; let s = fs.readFileSync(p, 'utf8'); s = s.replace(/\x00/g, ''); fs.writeFileSync(p, s); });

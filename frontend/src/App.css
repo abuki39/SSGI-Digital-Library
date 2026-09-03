@@ -1,0 +1,87 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f8f9fa;
+  color: #1f2937;
+}
+
+.app-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  background-color: #1b4332;
+  color: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: 0.5px;
+}
+
+header p {
+  margin: 5px 0 0;
+  color: #a7f3d0;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+/* Navigation Tabs */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 25px;
+  padding: 10px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+}
+
+.tabs button {
+  padding: 12px 24px;
+  cursor: pointer;
+  background-color: transparent;
+  color: #4b5563;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all 0.2s ease-in-out;
+}
+
+.tabs button:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.tabs button.active {
+  background-color: #1b4332;
+  color: white;
+  box-shadow: 0 4px 6px rgba(27, 67, 50, 0.2);
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+  .tabs button {
+    flex: 1 1 100%;
+    padding: 16px;
+    font-size: 16px;
+  }
+}

@@ -1,0 +1,347 @@
+/* Layout */
+.traineeLayout {
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e5e7eb;
+}
+
+/* Header Navigation */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.brandBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shieldIcon {
+  width: 32px;
+  height: 32px;
+  color: #1b4332;
+}
+
+.brandText {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.brandSSGI {
+  color: #1b4332;
+}
+
+.brandSecure {
+  color: #1f2937;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.roleBadge {
+  background-color: #f0f9ff;
+  color: #0369a1;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #bae6fd;
+}
+
+.signOutBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.signOutBtn:hover {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Main Content */
+.mainContent {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+/* Welcome Banner */
+.welcomeBanner {
+  background: linear-gradient(135deg, #1b4332 0%, #0f281e 100%);
+  color: white;
+  padding: 35px 40px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 15px -3px rgba(27, 67, 50, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcomeBanner::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -5%;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+}
+
+.welcomeBanner h2 {
+  margin: 0 0 10px 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.welcomeBanner p {
+  margin: 0;
+  font-size: 15px;
+  color: #d1fae5;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.readOnlyNotice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* Search Bar */
+.searchSection {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e5e7eb;
+  margin-bottom: 30px;
+}
+
+.searchBar {
+  display: flex;
+  gap: 15px;
+}
+
+.searchBar input, .searchBar select {
+  padding: 14px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+  font-size: 15px;
+  color: #1f2937;
+}
+
+.searchBar input {
+  flex: 2;
+}
+
+.searchBar select {
+  flex: 1;
+}
+
+.searchBar input:focus, .searchBar select:focus {
+  border-color: #1b4332;
+  box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.2);
+  background-color: white;
+}
+
+/* Document Grid */
+.documentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.docCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.docCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
+  border-color: #d1d5db;
+}
+
+.docHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.docTitle {
+  margin: 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.docCategory {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 15px;
+}
+
+.docMeta {
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.docMeta strong {
+  color: #374151;
+}
+
+.docActionBtn {
+  width: 100%;
+  padding: 12px;
+  background-color: #1b4332;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.docActionBtn:hover {
+  background-color: #0f281e;
+}
+
+.docActionBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Document Viewer Modal Overlay */
+.viewerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.viewerContent {
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 1000px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.viewerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.viewerHeader h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #1f2937;
+}
+
+.closeBtn {
+  padding: 8px 16px;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+  background-color: #e5e7eb;
+}
+
+@media (max-width: 768px) {
+  .searchBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .searchBar input,
+  .searchBar select {
+    width: 100%;
+  }
+  
+  .documentsGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .searchBar input, .searchBar select {
+    padding: 16px;
+    font-size: 16px;
+  }
+  
+  .viewerContent {
+    padding: 15px;
+    height: 95vh;
+  }
+}

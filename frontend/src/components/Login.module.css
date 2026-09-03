@@ -1,0 +1,248 @@
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.loginCard {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Header Section */
+.logoBox {
+  margin: 0 auto 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.shieldIcon {
+  width: 48px;
+  height: 48px;
+  color: #1b4332;
+}
+
+.titleBox {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.titleGreen {
+  color: #1b4332;
+}
+
+.titleSlate {
+  color: #1f2937;
+}
+
+.subtitleMuted {
+  font-size: 11px;
+  color: #6b7280;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+/* Headings */
+.primaryHeading {
+  font-size: 20px;
+  color: #1f2937;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+.subtitleText {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+/* Forms */
+.formGroup {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5563;
+  letter-spacing: 0.5px;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+  background-color: #f9fafb;
+}
+
+.formGroup input::placeholder {
+  color: #9ca3af;
+}
+
+.formGroup input:focus {
+  border-color: #1b4332;
+  box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.2);
+  background-color: white;
+}
+
+/* Password Wrapper */
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordWrapper input {
+  padding-right: 40px; /* Space for icon */
+}
+
+.visibilityToggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.visibilityToggle svg {
+  width: 20px;
+  height: 20px;
+  transition: color 0.2s;
+}
+
+.visibilityToggle:hover svg {
+  color: #4b5563;
+}
+
+/* Checkbox */
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.checkboxGroup label {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #4b5563;
+  cursor: pointer;
+}
+
+.checkboxGroup input {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  accent-color: #1b4332;
+  cursor: pointer;
+}
+
+/* Primary Button */
+.loginBtn {
+  width: 100%;
+  padding: 14px;
+  background-color: #1b4332;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px rgba(27, 67, 50, 0.3);
+}
+
+.loginBtn:hover:not(:disabled) {
+  background-color: #0f281e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px rgba(27, 67, 50, 0.4);
+}
+
+.loginBtn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.lockIcon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Links & Extras */
+.forgotPassword {
+  display: block;
+  font-size: 13px;
+  color: #1b4332;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+.forgotPassword:hover {
+  text-decoration: underline;
+}
+
+.errorMsg {
+  color: #ef4444;
+  margin-bottom: 15px;
+  font-size: 13px;
+  background-color: #fef2f2;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #fca5a5;
+  text-align: left;
+}
+
+.demoCreds {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: left;
+  background: #f9fafb;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+@media (max-width: 480px) {
+  .loginCard {
+    padding: 30px 20px;
+  }
+  .inputGroup input {
+    padding: 16px;
+    font-size: 16px; /* Prevents iOS auto-zoom */
+  }
+  .loginBtn {
+    padding: 16px;
+  }
+}
