@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./AdminDashboard.module.css";
+import NotificationCenter from "./NotificationCenter"; // Imported your notification component
 
 const AdminDashboard = ({ onNavigateSettings }) => {
   const [users, setUsers] = useState([]);
@@ -10,6 +11,9 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState("users");
+
+  const currentTheme = localStorage.getItem("theme_preference") || "light";
+  const isDark = currentTheme === "dark";
 
   // State for Full Inline Editing
   const [editingUserId, setEditingUserId] = useState(null);
@@ -512,7 +516,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
     : traineeDepartments;
 
   return (
-    <div className={styles.adminLayout}>
+    <div className={`${styles.adminLayout} ${isDark ? styles.darkTheme : ""}`}>
       <aside
         className={`${styles.sidebar} ${isMobileMenuOpen ? styles.sidebarOpen : ""}`}
       >
@@ -552,6 +556,12 @@ const AdminDashboard = ({ onNavigateSettings }) => {
             Departments
           </button>
           <button
+            className={`${styles.navItem} ${activeTab === "notifications" ? styles.navItemActive : ""}`}
+            onClick={() => setActiveTab("notifications")}
+          >
+            Notifications
+          </button>
+          <button
             className={`${styles.navItem} ${activeTab === "logs" ? styles.navItemActive : ""}`}
             onClick={() => setActiveTab("logs")}
           >
@@ -562,7 +572,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
         <div className={styles.sidebarFooter}>
           <button
             className={styles.signOutBtn}
-            style={{ marginBottom: "10px", backgroundColor: "#4b5563" }}
+            style={{ marginBottom: "10px" }}
             onClick={onNavigateSettings}
           >
             Settings
@@ -821,16 +831,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                           </div>
                         ) : (
                           <>
-                            <div
-                              style={{ fontWeight: "600", color: "#111827" }}
-                            >
+                            <div style={{ fontWeight: "600" }}>
                               {u.first_name} {u.last_name}
                             </div>
-                            <div
-                              style={{ fontSize: "0.85rem", color: "#6b7280" }}
-                            >
-                              {u.email}
-                            </div>
+                            <div style={{ fontSize: "0.85rem" }}>{u.email}</div>
                           </>
                         )}
                       </td>
@@ -896,7 +900,6 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                           ) : (
                             <span
                               style={{
-                                color: "#6b7280",
                                 fontStyle: "italic",
                                 fontSize: "0.85rem",
                               }}
@@ -990,7 +993,6 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                                 style={{
                                   padding: "6px 12px",
                                   fontSize: "0.85rem",
-                                  backgroundColor: "#e5e7eb",
                                 }}
                               >
                                 Edit
@@ -1037,7 +1039,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
             {/* BULK IMPORT CARD */}
             <div className={styles.card}>
               <h2>Bulk Import Trainees / Users</h2>
-              <p style={{ color: "#6b7280", marginBottom: "20px" }}>
+              <p style={{ marginBottom: "20px" }}>
                 Upload a CSV file containing columns:{" "}
                 <code>
                   first_name, last_name, phone_number, email, role, department
@@ -1053,7 +1055,6 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   type="file"
                   accept=".csv"
                   onChange={(e) => setCsvFile(e.target.files[0])}
-                  style={{ background: "white" }}
                 />
                 <button type="submit" className={styles.primaryBtn}>
                   Upload CSV
@@ -1076,7 +1077,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
             {/* BULK OFFBOARD CARD */}
             <div className={styles.card}>
               <h2>Bulk Offboard Trainees (Suspend Section)</h2>
-              <p style={{ color: "#6b7280", marginBottom: "20px" }}>
+              <p style={{ marginBottom: "20px" }}>
                 Select a training section to instantly suspend all associated
                 accounts.
               </p>
@@ -1089,7 +1090,6 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   onChange={(e) => setOffboardDepartmentId(e.target.value)}
                   required
                   style={{
-                    background: "white",
                     padding: "10px",
                     borderRadius: "6px",
                     border: "1px solid #d1d5db",
@@ -1250,6 +1250,16 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* TAB: NOTIFICATIONS */}
+        {activeTab === "notifications" && (
+          <div className={styles.card}>
+            <NotificationCenter
+              isLibrarian={true}
+              userRole="System Administrators"
+            />
           </div>
         )}
 

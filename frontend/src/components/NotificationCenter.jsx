@@ -20,10 +20,14 @@ const NotificationCenter = ({
 
   const fetchNotifications = async () => {
     try {
+      // FIX 1: Cleaned up the URL structure
       const res = await fetch(
-        `http://localhost:import.meta.env.VITE_API_URL + '/api/notifications?role=${encodeURIComponent(userRole)}`,
+        `${import.meta.env.VITE_API_URL}/api/notifications?role=${encodeURIComponent(userRole)}`,
         {
-
+          headers: {
+            // FIX 2: Added the Authorization header so the backend allows the request
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
       if (res.ok) {
@@ -45,7 +49,8 @@ const NotificationCenter = ({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-
+            // FIX 3: Added the Authorization header here too
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ title, message, target_role: targetRole }),
         },

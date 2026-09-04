@@ -529,3 +529,128 @@ button:disabled {
     padding: 20px;
   }
 }
+
+
+/* Dark Theme Overrides */
+.darkTheme {
+  background-color: #1a202c;
+  color: #f7fafc;
+  min-height: 100vh;
+}
+
+.darkTheme header,
+.darkTheme .staffHeader,
+.darkTheme .librarianHeader,
+.darkTheme .adminHeader {
+  background-color: #2d3748;
+  color: #f7fafc;
+  border-bottom: 1px solid #4a5568;
+}
+
+.darkTheme .card,
+.darkTheme .docCard,
+.darkTheme .statCard,
+.darkTheme .dashboardCard {
+  background-color: #2d3748;
+  color: #f7fafc;
+  border: 1px solid #4a5568;
+}
+
+.darkTheme h2, 
+.darkTheme h3, 
+.darkTheme .docTitle,
+.darkTheme .statNumber {
+  color: #ffffff;
+}
+
+.darkTheme p,
+.darkTheme .docMeta p,
+.darkTheme .docMeta strong,
+.darkTheme label,
+.darkTheme .statLabel {
+  color: #e2e8f0;
+}
+
+.darkTheme .docCategory {
+  background-color: #4a5568;
+  color: #f7fafc;
+}
+
+.darkTheme .modalContent,
+.darkTheme .viewerContent {
+  background-color: #2d3748;
+  color: #f7fafc;
+  border: 1px solid #4a5568;
+}
+
+.darkTheme input,
+.darkTheme select,
+.darkTheme textarea {
+  background-color: #4a5568;
+  color: #ffffff;
+  border: 1px solid #718096;
+}
+
+.darkTheme input::placeholder {
+  color: #a0aec0;
+}
+
+.darkTheme table {
+  background-color: #2d3748;
+  color: #f7fafc;
+}
+
+.darkTheme th {
+  background-color: #4a5568;
+  color: #ffffff;
+}
+
+.darkTheme td {
+  border-bottom: 1px solid #4a5568;
+  color: #e2e8f0;
+}
+
+.darkTheme .welcomeBanner {
+  background-color: #2d3748;
+  color: #f7fafc;
+}
+
+.darkTheme .readOnlyNotice {
+  color: #e2e8f0;
+}
+
+.darkTheme .sidebar {
+  background-color: #2d3748;
+  border-right: 1px solid #4a5568;
+}
+
+.darkTheme .sidebarHeader,
+.darkTheme .sidebarFooter {
+  border-color: #4a5568;
+}
+
+.darkTheme .sidebarSubtitle {
+  color: #a0aec0;
+}
+
+
+.darkTheme .navItem {
+  color: #e2e8f0;
+}
+
+.darkTheme .navItem:hover {
+  background-color: #4a5568;
+}
+
+.darkTheme .navItemActive {
+  background-color: #4a5568;
+  color: #ffffff;
+  border-right-color: #10b981;
+}
+
+
+.darkTheme .mobileHeader {
+  background-color: #2d3748;
+  color: #f7fafc;
+}
+

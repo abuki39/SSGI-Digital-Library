@@ -2,12 +2,20 @@ import React, { useState } from "react";
 import ChangePassword from "./ChangePassword";
 
 const Settings = ({ user, onBack }) => {
-  const [emailAlerts, setEmailAlerts] = useState(true);
-
-  // Fallback data in case user object is missing fields
   const safeUser = user || {};
 
-  // New Fields Extracted
+  const [emailAlerts, setEmailAlerts] = useState(
+    safeUser.email_alerts !== undefined ? Boolean(safeUser.email_alerts) : true,
+  );
+
+  // Initialize theme from localStorage or fallback to user data/light
+  const [themePreference, setThemePreference] = useState(
+    localStorage.getItem("theme_preference") ||
+      safeUser.theme_preference ||
+      "light",
+  );
+  const [savingPreferences, setSavingPreferences] = useState(false);
+
   const userFirstName = safeUser.first_name || "";
   const userLastName = safeUser.last_name || "";
   const userFullName =
@@ -16,12 +24,51 @@ const Settings = ({ user, onBack }) => {
       : "N/A";
   const userPhone = safeUser.phone_number || "N/A";
 
-  // Original Fields
   const userEmail = safeUser.email || "N/A";
   const userRole = safeUser.role || "User";
   const userDept = safeUser.department || "N/A";
   const userName = safeUser.username || userEmail.split("@")[0];
   const userStatus = safeUser.status || "Active";
+
+  const token = localStorage.getItem("token");
+
+  const updatePreferences = async (newSettings) => {
+    setSavingPreferences(true);
+    try {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + "/api/users/preferences",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newSettings),
+        },
+      );
+
+      if (!res.ok) {
+        alert("Failed to save preference changes.");
+      }
+    } catch (err) {
+      console.error("Network error saving preference", err);
+      alert("Network error. Changes could not be saved.");
+    } finally {
+      setSavingPreferences(false);
+    }
+  };
+
+  const handleToggleAlerts = () => {
+    const nextState = !emailAlerts;
+    setEmailAlerts(nextState);
+    updatePreferences({ email_alerts: nextState });
+  };
+
+  const handleThemeChange = (newTheme) => {
+    setThemePreference(newTheme);
+    localStorage.setItem("theme_preference", newTheme);
+    updatePreferences({ theme_preference: newTheme });
+  };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
@@ -33,13 +80,22 @@ const Settings = ({ user, onBack }) => {
   };
   const joinedDate = formatDate(safeUser.created_at);
 
+  const isDark = themePreference === "dark";
+  const bgColor = isDark ? "#1a202c" : "#f7fafc";
+  const cardBg = isDark ? "#2d3748" : "white";
+  const textColor = isDark ? "#f7fafc" : "#2d3748";
+  const subTextColor = isDark ? "#a0aec0" : "#718096";
+  const borderColor = isDark ? "#4a5568" : "#e2e8f0";
+
   return (
     <div
       style={{
         padding: "40px",
-        backgroundColor: "#f7fafc",
+        backgroundColor: bgColor,
         minHeight: "100vh",
         boxSizing: "border-box",
+        color: textColor,
+        transition: "background-color 0.3s ease",
       }}
     >
       <div style={{ maxWidth: "900px", margin: "0 auto" }}>
@@ -48,22 +104,22 @@ const Settings = ({ user, onBack }) => {
           style={{
             marginBottom: "20px",
             padding: "8px 16px",
-            backgroundColor: "#e2e8f0",
+            backgroundColor: isDark ? "#4a5568" : "#e2e8f0",
             border: "none",
             borderRadius: "4px",
             cursor: "pointer",
             fontWeight: "600",
-            color: "#4a5568",
+            color: isDark ? "#f7fafc" : "#4a5568",
           }}
         >
           &larr; Back to Dashboard
         </button>
 
         <div style={{ marginBottom: "40px" }}>
-          <h1 style={{ color: "#2d3748", margin: "0 0 10px 0" }}>
+          <h1 style={{ color: textColor, margin: "0 0 10px 0" }}>
             Account Settings
           </h1>
-          <p style={{ color: "#718096", margin: 0 }}>
+          <p style={{ color: subTextColor, margin: 0 }}>
             View your profile, security clearance, and preferences.
           </p>
         </div>
@@ -79,20 +135,21 @@ const Settings = ({ user, onBack }) => {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "30px" }}
           >
-            {/* Profile Identity Card (UPDATED) */}
+            {/* Profile Identity Card */}
             <div
               style={{
-                backgroundColor: "white",
+                backgroundColor: cardBg,
                 padding: "30px",
                 borderRadius: "8px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: `1px solid ${borderColor}`,
               }}
             >
               <h3
                 style={{
                   margin: "0 0 20px 0",
-                  color: "#2d3748",
-                  borderBottom: "1px solid #e2e8f0",
+                  color: textColor,
+                  borderBottom: `1px solid ${borderColor}`,
                   paddingBottom: "10px",
                 }}
               >
@@ -104,7 +161,7 @@ const Settings = ({ user, onBack }) => {
                   style={{
                     display: "block",
                     fontSize: "0.9rem",
-                    color: "#718096",
+                    color: subTextColor,
                     marginBottom: "5px",
                   }}
                 >
@@ -113,7 +170,7 @@ const Settings = ({ user, onBack }) => {
                 <div
                   style={{
                     fontSize: "1.1rem",
-                    color: "#2d3748",
+                    color: textColor,
                     fontWeight: "500",
                   }}
                 >
@@ -126,7 +183,7 @@ const Settings = ({ user, onBack }) => {
                   style={{
                     display: "block",
                     fontSize: "0.9rem",
-                    color: "#718096",
+                    color: subTextColor,
                     marginBottom: "5px",
                   }}
                 >
@@ -135,7 +192,7 @@ const Settings = ({ user, onBack }) => {
                 <div
                   style={{
                     fontSize: "1.1rem",
-                    color: "#2d3748",
+                    color: textColor,
                     fontWeight: "500",
                   }}
                 >
@@ -148,7 +205,7 @@ const Settings = ({ user, onBack }) => {
                   style={{
                     display: "block",
                     fontSize: "0.9rem",
-                    color: "#718096",
+                    color: subTextColor,
                     marginBottom: "5px",
                   }}
                 >
@@ -157,7 +214,7 @@ const Settings = ({ user, onBack }) => {
                 <div
                   style={{
                     fontSize: "1.1rem",
-                    color: "#2d3748",
+                    color: textColor,
                     fontWeight: "500",
                   }}
                 >
@@ -170,7 +227,7 @@ const Settings = ({ user, onBack }) => {
                   style={{
                     display: "block",
                     fontSize: "0.9rem",
-                    color: "#718096",
+                    color: subTextColor,
                     marginBottom: "5px",
                   }}
                 >
@@ -179,7 +236,7 @@ const Settings = ({ user, onBack }) => {
                 <div
                   style={{
                     fontSize: "1.1rem",
-                    color: "#2d3748",
+                    color: textColor,
                     fontWeight: "500",
                   }}
                 >
@@ -188,20 +245,21 @@ const Settings = ({ user, onBack }) => {
               </div>
             </div>
 
-            {/* Role & Department Badges */}
+            {/* Security Clearance */}
             <div
               style={{
-                backgroundColor: "white",
+                backgroundColor: cardBg,
                 padding: "30px",
                 borderRadius: "8px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: `1px solid ${borderColor}`,
               }}
             >
               <h3
                 style={{
                   margin: "0 0 20px 0",
-                  color: "#2d3748",
-                  borderBottom: "1px solid #e2e8f0",
+                  color: textColor,
+                  borderBottom: `1px solid ${borderColor}`,
                   paddingBottom: "10px",
                 }}
               >
@@ -213,7 +271,7 @@ const Settings = ({ user, onBack }) => {
                     style={{
                       display: "block",
                       fontSize: "0.9rem",
-                      color: "#718096",
+                      color: subTextColor,
                       marginBottom: "8px",
                     }}
                   >
@@ -223,12 +281,12 @@ const Settings = ({ user, onBack }) => {
                     style={{
                       display: "inline-block",
                       padding: "6px 12px",
-                      backgroundColor: "#ebf8ff",
-                      color: "#3182ce",
+                      backgroundColor: isDark ? "#2b6cb0" : "#ebf8ff",
+                      color: isDark ? "#e2e8f0" : "#3182ce",
                       borderRadius: "9999px",
                       fontWeight: "600",
                       fontSize: "0.9rem",
-                      border: "1px solid #90cdf4",
+                      border: `1px solid ${isDark ? "#3182ce" : "#90cdf4"}`,
                     }}
                   >
                     {userRole}
@@ -239,7 +297,7 @@ const Settings = ({ user, onBack }) => {
                     style={{
                       display: "block",
                       fontSize: "0.9rem",
-                      color: "#718096",
+                      color: subTextColor,
                       marginBottom: "8px",
                     }}
                   >
@@ -249,12 +307,12 @@ const Settings = ({ user, onBack }) => {
                     style={{
                       display: "inline-block",
                       padding: "6px 12px",
-                      backgroundColor: "#faf5ff",
-                      color: "#805ad5",
+                      backgroundColor: isDark ? "#553c9a" : "#faf5ff",
+                      color: isDark ? "#e2e8f0" : "#805ad5",
                       borderRadius: "9999px",
                       fontWeight: "600",
                       fontSize: "0.9rem",
-                      border: "1px solid #d6bcfa",
+                      border: `1px solid ${isDark ? "#805ad5" : "#d6bcfa"}`,
                     }}
                   >
                     {userDept}
@@ -263,20 +321,21 @@ const Settings = ({ user, onBack }) => {
               </div>
             </div>
 
-            {/* Account Status & Tenure */}
+            {/* Account Status */}
             <div
               style={{
-                backgroundColor: "white",
+                backgroundColor: cardBg,
                 padding: "30px",
                 borderRadius: "8px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: `1px solid ${borderColor}`,
               }}
             >
               <h3
                 style={{
                   margin: "0 0 20px 0",
-                  color: "#2d3748",
-                  borderBottom: "1px solid #e2e8f0",
+                  color: textColor,
+                  borderBottom: `1px solid ${borderColor}`,
                   paddingBottom: "10px",
                 }}
               >
@@ -288,7 +347,7 @@ const Settings = ({ user, onBack }) => {
                     style={{
                       display: "block",
                       fontSize: "0.9rem",
-                      color: "#718096",
+                      color: subTextColor,
                       marginBottom: "8px",
                     }}
                   >
@@ -320,7 +379,7 @@ const Settings = ({ user, onBack }) => {
                     style={{
                       display: "block",
                       fontSize: "0.9rem",
-                      color: "#718096",
+                      color: subTextColor,
                       marginBottom: "8px",
                     }}
                   >
@@ -329,7 +388,7 @@ const Settings = ({ user, onBack }) => {
                   <div
                     style={{
                       fontSize: "1rem",
-                      color: "#4a5568",
+                      color: textColor,
                       fontWeight: "500",
                     }}
                   >
@@ -338,21 +397,111 @@ const Settings = ({ user, onBack }) => {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Notification Preferences */}
+          {/* Right Column */}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "30px" }}
+          >
+            {/* Display / Theme Preferences */}
             <div
               style={{
-                backgroundColor: "white",
+                backgroundColor: cardBg,
                 padding: "30px",
                 borderRadius: "8px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: `1px solid ${borderColor}`,
               }}
             >
               <h3
                 style={{
                   margin: "0 0 20px 0",
-                  color: "#2d3748",
-                  borderBottom: "1px solid #e2e8f0",
+                  color: textColor,
+                  borderBottom: `1px solid ${borderColor}`,
+                  paddingBottom: "10px",
+                }}
+              >
+                Interface Theme
+              </h3>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <h4 style={{ margin: "0 0 5px 0", color: textColor }}>
+                    Display Mode
+                  </h4>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "0.85rem",
+                      color: subTextColor,
+                    }}
+                  >
+                    Choose between light and dark visual themes.
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={() => handleThemeChange("light")}
+                    style={{
+                      padding: "8px 14px",
+                      backgroundColor:
+                        themePreference === "light"
+                          ? "#3182ce"
+                          : isDark
+                            ? "#4a5568"
+                            : "#e2e8f0",
+                      color: themePreference === "light" ? "white" : textColor,
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Light
+                  </button>
+                  <button
+                    onClick={() => handleThemeChange("dark")}
+                    style={{
+                      padding: "8px 14px",
+                      backgroundColor:
+                        themePreference === "dark"
+                          ? "#3182ce"
+                          : isDark
+                            ? "#4a5568"
+                            : "#e2e8f0",
+                      color: themePreference === "dark" ? "white" : textColor,
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Dark
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Notification Preferences */}
+            <div
+              style={{
+                backgroundColor: cardBg,
+                padding: "30px",
+                borderRadius: "8px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: `1px solid ${borderColor}`,
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 20px 0",
+                  color: textColor,
+                  borderBottom: `1px solid ${borderColor}`,
                   paddingBottom: "10px",
                 }}
               >
@@ -367,14 +516,20 @@ const Settings = ({ user, onBack }) => {
                 }}
               >
                 <div>
-                  <h4 style={{ margin: "0 0 5px 0", color: "#2d3748" }}>
+                  <h4 style={{ margin: "0 0 5px 0", color: textColor }}>
                     New Document Alerts
                   </h4>
                   <p
-                    style={{ margin: 0, fontSize: "0.85rem", color: "#718096" }}
+                    style={{
+                      margin: 0,
+                      fontSize: "0.85rem",
+                      color: subTextColor,
+                    }}
                   >
-                    Receive email alerts when new documents are uploaded to your
-                    department.
+                    Receive email alerts when new documents are uploaded.
+                    {savingPreferences && (
+                      <span style={{ color: "#3182ce" }}> (Saving...)</span>
+                    )}
                   </p>
                 </div>
                 <label
@@ -388,7 +543,8 @@ const Settings = ({ user, onBack }) => {
                     <input
                       type="checkbox"
                       checked={emailAlerts}
-                      onChange={() => setEmailAlerts(!emailAlerts)}
+                      onChange={handleToggleAlerts}
+                      disabled={savingPreferences}
                       style={{ opacity: 0, width: 0, height: 0 }}
                     />
                     <div
@@ -418,177 +574,22 @@ const Settings = ({ user, onBack }) => {
                 </label>
               </div>
             </div>
-          </div>
-
-          {/* Right Column */}
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "30px" }}
-          >
-            {/* Security Overview */}
-            <div
-              style={{
-                backgroundColor: "white",
-                padding: "30px",
-                borderRadius: "8px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              }}
-            >
-              <h3
-                style={{
-                  margin: "0 0 20px 0",
-                  color: "#2d3748",
-                  borderBottom: "1px solid #e2e8f0",
-                  paddingBottom: "10px",
-                }}
-              >
-                Security Overview
-              </h3>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "15px",
-                  marginBottom: "25px",
-                  padding: "15px",
-                  backgroundColor: "#f0fff4",
-                  border: "1px solid #c6f6d5",
-                  borderRadius: "6px",
-                }}
-              >
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    backgroundColor: "#48bb78",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                    fontSize: "1.2rem",
-                  }}
-                >
-                  ✓
-                </div>
-                <div>
-                  <h4 style={{ margin: "0 0 5px 0", color: "#276749" }}>
-                    Account Secure
-                  </h4>
-                  <p
-                    style={{ margin: 0, fontSize: "0.85rem", color: "#2f855a" }}
-                  >
-                    No unusual activity detected.
-                  </p>
-                </div>
-              </div>
-
-              <h4
-                style={{
-                  margin: "0 0 15px 0",
-                  color: "#4a5568",
-                  fontSize: "0.95rem",
-                }}
-              >
-                Active Sessions
-              </h4>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "15px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    paddingBottom: "15px",
-                    borderBottom: "1px solid #edf2f7",
-                  }}
-                >
-                  <div>
-                    <strong
-                      style={{
-                        display: "block",
-                        color: "#2d3748",
-                        fontSize: "0.95rem",
-                      }}
-                    >
-                      Windows • Chrome Browser
-                    </strong>
-                    <span style={{ fontSize: "0.85rem", color: "#718096" }}>
-                      IP: 192.168.1.100 (Current Session)
-                    </span>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: "0.8rem",
-                      padding: "4px 8px",
-                      backgroundColor: "#ebf8ff",
-                      color: "#3182ce",
-                      borderRadius: "4px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Active Now
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div>
-                    <strong
-                      style={{
-                        display: "block",
-                        color: "#2d3748",
-                        fontSize: "0.95rem",
-                      }}
-                    >
-                      iPhone • Safari Browser
-                    </strong>
-                    <span style={{ fontSize: "0.85rem", color: "#718096" }}>
-                      IP: 10.0.0.45
-                    </span>
-                  </div>
-                  <button
-                    style={{
-                      fontSize: "0.8rem",
-                      padding: "6px 12px",
-                      backgroundColor: "transparent",
-                      color: "#e53e3e",
-                      border: "1px solid #e53e3e",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Revoke
-                  </button>
-                </div>
-              </div>
-            </div>
 
             {/* Change Password */}
             <div
               style={{
-                backgroundColor: "white",
+                backgroundColor: cardBg,
                 padding: "30px",
                 borderRadius: "8px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: `1px solid ${borderColor}`,
               }}
             >
               <h3
                 style={{
                   margin: "0 0 20px 0",
-                  color: "#2d3748",
-                  borderBottom: "1px solid #e2e8f0",
+                  color: textColor,
+                  borderBottom: `1px solid ${borderColor}`,
                   paddingBottom: "10px",
                 }}
               >
