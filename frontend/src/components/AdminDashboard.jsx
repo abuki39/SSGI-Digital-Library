@@ -11,6 +11,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
   const [activeTab, setActiveTab] = useState("users");
 
+  // State for Inline Editing
   const [editingUserId, setEditingUserId] = useState(null);
   const [selectedRoleId, setSelectedRoleId] = useState("");
 
@@ -33,13 +34,8 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const [newStaffDepartmentName, setNewStaffDepartmentName] = useState("");
   const [createStaffMessage, setCreateStaffMessage] = useState("");
 
-  const [offboardDepartmentId, setOffboardDepartmentId] = useState("");
-  const [offboardMessage, setOffboardMessage] = useState("");
-
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [filterUserId, setFilterUserId] = useState("");
-  const [filterAction, setFilterAction] = useState("");
 
   const token = localStorage.getItem("token");
 
@@ -342,6 +338,87 @@ const AdminDashboard = ({ onNavigateSettings }) => {
     }
   };
 
+  const handleUpdateRole = async (id) => {
+    try {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/api/admin/users/${id}/role`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ roleId: selectedRoleId }),
+        },
+      );
+      if (res.ok) {
+        setEditingUserId(null); // Close the edit mode
+        fetchUsers(); // Refresh table data
+      } else {
+        alert("Failed to update user role");
+      }
+    } catch (err) {
+      alert("Network error updating role");
+    }
+  };
+
+  const handleToggleStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === "active" ? "suspended" : "active";
+    if (
+      !window.confirm(
+        `Are you sure you want to ${newStatus === "suspended" ? "suspend" : "activate"} this user?`,
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/api/admin/users/${id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        },
+      );
+      if (res.ok) {
+        fetchUsers();
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (err) {
+      alert("Network error updating status");
+    }
+  };
+
+  const handleDeleteUser = async (id) => {
+    if (
+      !window.confirm(
+        "Are you absolutely sure you want to delete this user? This action cannot be undone.",
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/api/admin/users/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (res.ok) {
+        fetchUsers();
+      } else {
+        alert("Failed to delete user");
+      }
+    } catch (err) {
+      alert("Network error deleting user");
+    }
+  };
+
   const handleSignOut = () => {
     localStorage.removeItem("token");
     window.location.reload();
@@ -601,6 +678,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                     <th>Department</th>
                     <th>Phone</th>
                     <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -616,9 +694,30 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                           {u.email}
                         </div>
                       </td>
-                      <td>{u.role}</td>
+                      <td>
+                        {/* Inline Role Editing */}
+                        {editingUserId === u.id ? (
+                          <select
+                            value={selectedRoleId}
+                            onChange={(e) => setSelectedRoleId(e.target.value)}
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "4px",
+                              border: "1px solid #d1d5db",
+                              outline: "none",
+                            }}
+                          >
+                            {roles.map((r) => (
+                              <option key={r.id} value={r.id}>
+                                {r.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          u.role
+                        )}
+                      </td>
                       <td>{u.department || "-"}</td>
-                      {/* Formatted Phone Column */}
                       <td>{formatPhone(u.phone_number)}</td>
                       <td>
                         <span
@@ -626,6 +725,73 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                         >
                           {u.status}
                         </span>
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          {editingUserId === u.id ? (
+                            <>
+                              <button
+                                onClick={() => handleUpdateRole(u.id)}
+                                className={styles.primaryBtn}
+                                style={{
+                                  padding: "6px 12px",
+                                  fontSize: "0.85rem",
+                                }}
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => setEditingUserId(null)}
+                                className={styles.secondaryBtn}
+                                style={{
+                                  padding: "6px 12px",
+                                  fontSize: "0.85rem",
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setEditingUserId(u.id);
+                                  setSelectedRoleId(u.role_id);
+                                }}
+                                className={styles.secondaryBtn}
+                                style={{
+                                  padding: "6px 12px",
+                                  fontSize: "0.85rem",
+                                  backgroundColor: "#e5e7eb",
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleToggleStatus(u.id, u.status)
+                                }
+                                className={styles.secondaryBtn}
+                                style={{
+                                  padding: "6px 12px",
+                                  fontSize: "0.85rem",
+                                }}
+                              >
+                                {u.status === "active" ? "Suspend" : "Activate"}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteUser(u.id)}
+                                className={styles.dangerBtn}
+                                style={{
+                                  padding: "6px 12px",
+                                  fontSize: "0.85rem",
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
