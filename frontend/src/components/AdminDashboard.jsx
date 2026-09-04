@@ -43,6 +43,15 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
   const token = localStorage.getItem("token");
 
+  // PHONE NUMBER FORMATTER (International +251)
+  const formatPhone = (phone) => {
+    if (!phone) return "-";
+    if (phone.startsWith("0")) {
+      return "+251" + phone.slice(1);
+    }
+    return phone;
+  };
+
   useEffect(() => {
     fetchRoles();
     fetchDepartments();
@@ -587,9 +596,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Email</th>
+                    <th>User</th>
                     <th>Role</th>
                     <th>Department</th>
+                    <th>Phone</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -597,9 +607,19 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   {users.map((u) => (
                     <tr key={u.id}>
                       <td>{u.id}</td>
-                      <td>{u.email}</td>
+                      <td>
+                        {/* Stacked Name and Email */}
+                        <div style={{ fontWeight: "600", color: "#111827" }}>
+                          {u.first_name} {u.last_name}
+                        </div>
+                        <div style={{ fontSize: "0.85rem", color: "#6b7280" }}>
+                          {u.email}
+                        </div>
+                      </td>
                       <td>{u.role}</td>
                       <td>{u.department || "-"}</td>
+                      {/* Formatted Phone Column */}
+                      <td>{formatPhone(u.phone_number)}</td>
                       <td>
                         <span
                           className={`${styles.badge} ${u.status === "suspended" ? styles.badgeSuspended : styles.badgeActive}`}
