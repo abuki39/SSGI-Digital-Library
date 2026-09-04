@@ -34,6 +34,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const [csvFile, setCsvFile] = useState(null);
   const [bulkMessage, setBulkMessage] = useState("");
 
+  // State for Bulk Offboard
+  const [offboardDepartmentId, setOffboardDepartmentId] = useState("");
+  const [offboardMessage, setOffboardMessage] = useState("");
+
   const [newDepartmentName, setNewDepartmentName] = useState("");
   const [createMessage, setCreateMessage] = useState("");
 
@@ -80,13 +84,30 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
     if (safeFirst && safeLast) {
       const basePrefix = `${safeFirst}.${safeLast}`;
-      let generatedEmail = `${basePrefix}@ssgi.edu`;
+
+      // Default domain for all Staff, Admins, and Librarians
+      let domain = "@ssgi.gov.et";
+
+      const selectedRoleObj = roles.find(
+        (r) => String(r.id) === String(newRoleId),
+      );
+
+      // If the role exists and specifically contains "trainee", switch to the .edu domain
+      if (
+        selectedRoleObj &&
+        selectedRoleObj.name.toLowerCase().includes("trainee")
+      ) {
+        domain = "@ssgi.edu";
+      }
+
+      let generatedEmail = `${basePrefix}${domain}`;
       let counter = 1;
 
       const existingEmails = users.map((u) => u.email);
 
+      // Handle duplicate names by adding a number
       while (existingEmails.includes(generatedEmail)) {
-        generatedEmail = `${basePrefix}${counter}@ssgi.edu`;
+        generatedEmail = `${basePrefix}${counter}${domain}`;
         counter++;
       }
 
@@ -94,7 +115,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
     } else if (!safeFirst && !safeLast) {
       setNewEmail("");
     }
-  }, [newFirstName, newLastName, users]);
+  }, [newFirstName, newLastName, newRoleId, roles, users]);
 
   const fetchUsers = async () => {
     try {
@@ -245,6 +266,43 @@ const AdminDashboard = ({ onNavigateSettings }) => {
       }
     } catch (err) {
       setBulkMessage("Error: Network error during bulk import.");
+    }
+  };
+
+  const handleBulkOffboard = async (e) => {
+    e.preventDefault();
+    setOffboardMessage("");
+    if (!offboardDepartmentId) return;
+
+    if (
+      !window.confirm(
+        "Are you sure you want to suspend ALL users in this training section?",
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + "/api/admin/users/bulk-suspend",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ department_id: offboardDepartmentId }),
+        },
+      );
+
+      if (res.ok) {
+        setOffboardMessage("Trainees successfully suspended!");
+        setOffboardDepartmentId("");
+        fetchUsers();
+      } else {
+        setOffboardMessage("Error: Failed to offboard trainees.");
+      }
+    } catch (err) {
+      setOffboardMessage("Error: Network error during offboarding.");
     }
   };
 
@@ -574,9 +632,16 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   </label>
                   <input
                     type="tel"
-                    placeholder="e.g., 0911234567"
+                    placeholder="e.g., 0911234567 or +251711234567"
                     value={newPhoneNumber}
-                    onChange={(e) => setNewPhoneNumber(e.target.value)}
+                    onChange={(e) => {
+                      let val = e.target.value.replace(/[^\d+]/g, "");
+                      val = val.replace(/(?!^\+)\+/g, "");
+                      setNewPhoneNumber(val);
+                    }}
+                    pattern="^(?:\+251|0)[79]\d{8}$"
+                    maxLength="13"
+                    title="Must start with 09, 07, +2519, or +2517, followed by exactly 8 digits."
                     required
                   />
                 </div>
@@ -848,20 +913,26 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                       <td>
                         {editingUserId === u.id ? (
                           <input
-                            type="text"
+                            type="tel"
                             value={editFormData.phone_number}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              let val = e.target.value.replace(/[^\d+]/g, "");
+                              val = val.replace(/(?!^\+)\+/g, "");
                               setEditFormData({
                                 ...editFormData,
-                                phone_number: e.target.value,
-                              })
-                            }
+                                phone_number: val,
+                              });
+                            }}
+                            pattern="^(?:\+251|0)[79]\d{8}$"
+                            maxLength="13"
+                            title="Must start with 09, 07, +2519, or +2517, followed by exactly 8 digits."
                             style={{
                               padding: "6px 8px",
                               borderRadius: "4px",
                               border: "1px solid #d1d5db",
                               width: "100%",
                             }}
+                            required
                           />
                         ) : (
                           formatPhone(u.phone_number)
@@ -960,39 +1031,94 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
         {/* TAB: BULK OPERATIONS */}
         {activeTab === "bulk" && (
-          <div className={styles.card}>
-            <h2>Bulk Import Trainees / Users</h2>
-            <p style={{ color: "#6b7280", marginBottom: "20px" }}>
-              Upload a CSV file containing columns:{" "}
-              <code>
-                first_name, last_name, phone_number, email, role, department
-              </code>
-              .
-            </p>
-            <form onSubmit={handleBulkUpload} className={styles.responsiveForm}>
-              <input
-                id="csvFileInput"
-                type="file"
-                accept=".csv"
-                onChange={(e) => setCsvFile(e.target.files[0])}
-                style={{ background: "white" }}
-              />
-              <button type="submit" className={styles.primaryBtn}>
-                Upload CSV
-              </button>
-              {bulkMessage && (
-                <span
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "30px" }}
+          >
+            {/* BULK IMPORT CARD */}
+            <div className={styles.card}>
+              <h2>Bulk Import Trainees / Users</h2>
+              <p style={{ color: "#6b7280", marginBottom: "20px" }}>
+                Upload a CSV file containing columns:{" "}
+                <code>
+                  first_name, last_name, phone_number, email, role, department
+                </code>
+                .
+              </p>
+              <form
+                onSubmit={handleBulkUpload}
+                className={styles.responsiveForm}
+              >
+                <input
+                  id="csvFileInput"
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => setCsvFile(e.target.files[0])}
+                  style={{ background: "white" }}
+                />
+                <button type="submit" className={styles.primaryBtn}>
+                  Upload CSV
+                </button>
+                {bulkMessage && (
+                  <span
+                    style={{
+                      color: bulkMessage.startsWith("Error")
+                        ? "#ef4444"
+                        : "#10b981",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {bulkMessage}
+                  </span>
+                )}
+              </form>
+            </div>
+
+            {/* BULK OFFBOARD CARD */}
+            <div className={styles.card}>
+              <h2>Bulk Offboard Trainees (Suspend Section)</h2>
+              <p style={{ color: "#6b7280", marginBottom: "20px" }}>
+                Select a training section to instantly suspend all associated
+                accounts.
+              </p>
+              <form
+                onSubmit={handleBulkOffboard}
+                className={styles.responsiveForm}
+              >
+                <select
+                  value={offboardDepartmentId}
+                  onChange={(e) => setOffboardDepartmentId(e.target.value)}
+                  required
                   style={{
-                    color: bulkMessage.startsWith("Error")
-                      ? "#ef4444"
-                      : "#10b981",
-                    fontWeight: "bold",
+                    background: "white",
+                    padding: "10px",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
                   }}
                 >
-                  {bulkMessage}
-                </span>
-              )}
-            </form>
+                  <option value="">-- Select Training Section --</option>
+                  {traineeDepartments.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <button type="submit" className={styles.dangerBtn}>
+                  Suspend Section
+                </button>
+                {offboardMessage && (
+                  <span
+                    style={{
+                      color: offboardMessage.startsWith("Error")
+                        ? "#ef4444"
+                        : "#10b981",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {offboardMessage}
+                  </span>
+                )}
+              </form>
+            </div>
           </div>
         )}
 

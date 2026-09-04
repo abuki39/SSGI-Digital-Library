@@ -283,6 +283,21 @@ router.post("/users/bulk", upload.single("file"), async (req, res) => {
   }
 });
 
+// POST bulk suspend users in a specific department
+router.post("/users/bulk-suspend", async (req, res) => {
+  const { department_id } = req.body;
+  try {
+    await db.execute(
+      "UPDATE users SET status = 'suspended' WHERE department_id = ?",
+      [department_id],
+    );
+    res.json({ message: "Users in department suspended successfully" });
+  } catch (error) {
+    console.error("Error bulk suspending users:", error);
+    res.status(500).json({ error: "Database error during bulk suspend" });
+  }
+});
+
 // GET roles
 router.get("/roles", async (req, res) => {
   try {
