@@ -11,9 +11,15 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
   const [activeTab, setActiveTab] = useState("users");
 
-  // State for Inline Editing
+  // State for Full Inline Editing
   const [editingUserId, setEditingUserId] = useState(null);
-  const [selectedRoleId, setSelectedRoleId] = useState("");
+  const [editFormData, setEditFormData] = useState({
+    first_name: "",
+    last_name: "",
+    phone_number: "",
+    role_id: "",
+    department_id: "",
+  });
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newFirstName, setNewFirstName] = useState("");
@@ -338,27 +344,29 @@ const AdminDashboard = ({ onNavigateSettings }) => {
     }
   };
 
-  const handleUpdateRole = async (id) => {
+  // FULL INLINE UPDATE HANDLER
+  const handleUpdateUser = async (id) => {
     try {
       const res = await fetch(
-        import.meta.env.VITE_API_URL + `/api/admin/users/${id}/role`,
+        import.meta.env.VITE_API_URL + `/api/admin/users/${id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ roleId: selectedRoleId }),
+          body: JSON.stringify(editFormData),
         },
       );
       if (res.ok) {
-        setEditingUserId(null); // Close the edit mode
-        fetchUsers(); // Refresh table data
+        setEditingUserId(null);
+        fetchUsers();
       } else {
-        alert("Failed to update user role");
+        const errorData = await res.json().catch(() => ({}));
+        alert(`Failed to update user: ${errorData.error || "Server error"}`);
       }
     } catch (err) {
-      alert("Network error updating role");
+      alert("Network error updating user");
     }
   };
 
@@ -424,11 +432,26 @@ const AdminDashboard = ({ onNavigateSettings }) => {
     window.location.reload();
   };
 
+  // Logic to determine which department list to show when creating
   const selectedRole = roles.find((r) => String(r.id) === String(newRoleId));
   const isTraineeOrStaff =
     selectedRole &&
     (selectedRole.name.toLowerCase().includes("trainee") ||
       selectedRole.name.toLowerCase().includes("staff"));
+
+  // Logic to determine which department list to show when editing
+  const editSelectedRole = roles.find(
+    (r) => String(r.id) === String(editFormData.role_id),
+  );
+  const editIsTraineeOrStaff =
+    editSelectedRole &&
+    (editSelectedRole.name.toLowerCase().includes("trainee") ||
+      editSelectedRole.name.toLowerCase().includes("staff"));
+  const editDepartmentsList = editSelectedRole?.name
+    .toLowerCase()
+    .includes("staff")
+    ? staffDepartments
+    : traineeDepartments;
 
   return (
     <div className={styles.adminLayout}>
@@ -685,26 +708,86 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   {users.map((u) => (
                     <tr key={u.id}>
                       <td>{u.id}</td>
+
+                      {/* NAME COLUMN */}
                       <td>
-                        {/* Stacked Name and Email */}
-                        <div style={{ fontWeight: "600", color: "#111827" }}>
-                          {u.first_name} {u.last_name}
-                        </div>
-                        <div style={{ fontSize: "0.85rem", color: "#6b7280" }}>
-                          {u.email}
-                        </div>
+                        {editingUserId === u.id ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "5px",
+                            }}
+                          >
+                            <input
+                              type="text"
+                              value={editFormData.first_name}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  first_name: e.target.value,
+                                })
+                              }
+                              placeholder="First Name"
+                              style={{
+                                padding: "4px 8px",
+                                borderRadius: "4px",
+                                border: "1px solid #d1d5db",
+                                width: "100%",
+                              }}
+                            />
+                            <input
+                              type="text"
+                              value={editFormData.last_name}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  last_name: e.target.value,
+                                })
+                              }
+                              placeholder="Last Name"
+                              style={{
+                                padding: "4px 8px",
+                                borderRadius: "4px",
+                                border: "1px solid #d1d5db",
+                                width: "100%",
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            <div
+                              style={{ fontWeight: "600", color: "#111827" }}
+                            >
+                              {u.first_name} {u.last_name}
+                            </div>
+                            <div
+                              style={{ fontSize: "0.85rem", color: "#6b7280" }}
+                            >
+                              {u.email}
+                            </div>
+                          </>
+                        )}
                       </td>
+
+                      {/* ROLE COLUMN */}
                       <td>
-                        {/* Inline Role Editing */}
                         {editingUserId === u.id ? (
                           <select
-                            value={selectedRoleId}
-                            onChange={(e) => setSelectedRoleId(e.target.value)}
+                            value={editFormData.role_id}
+                            onChange={(e) =>
+                              setEditFormData({
+                                ...editFormData,
+                                role_id: e.target.value,
+                                department_id: "",
+                              })
+                            }
                             style={{
-                              padding: "4px 8px",
+                              padding: "6px 8px",
                               borderRadius: "4px",
                               border: "1px solid #d1d5db",
                               outline: "none",
+                              width: "100%",
                             }}
                           >
                             {roles.map((r) => (
@@ -717,8 +800,74 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                           u.role
                         )}
                       </td>
-                      <td>{u.department || "-"}</td>
-                      <td>{formatPhone(u.phone_number)}</td>
+
+                      {/* DEPARTMENT COLUMN */}
+                      <td>
+                        {editingUserId === u.id ? (
+                          editIsTraineeOrStaff ? (
+                            <select
+                              value={editFormData.department_id}
+                              onChange={(e) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  department_id: e.target.value,
+                                })
+                              }
+                              style={{
+                                padding: "6px 8px",
+                                borderRadius: "4px",
+                                border: "1px solid #d1d5db",
+                                outline: "none",
+                                width: "100%",
+                              }}
+                            >
+                              <option value="">-- Select --</option>
+                              {editDepartmentsList.map((d) => (
+                                <option key={d.id} value={d.id}>
+                                  {d.name}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span
+                              style={{
+                                color: "#6b7280",
+                                fontStyle: "italic",
+                                fontSize: "0.85rem",
+                              }}
+                            >
+                              N/A for role
+                            </span>
+                          )
+                        ) : (
+                          u.department || "-"
+                        )}
+                      </td>
+
+                      {/* PHONE COLUMN */}
+                      <td>
+                        {editingUserId === u.id ? (
+                          <input
+                            type="text"
+                            value={editFormData.phone_number}
+                            onChange={(e) =>
+                              setEditFormData({
+                                ...editFormData,
+                                phone_number: e.target.value,
+                              })
+                            }
+                            style={{
+                              padding: "6px 8px",
+                              borderRadius: "4px",
+                              border: "1px solid #d1d5db",
+                              width: "100%",
+                            }}
+                          />
+                        ) : (
+                          formatPhone(u.phone_number)
+                        )}
+                      </td>
+
                       <td>
                         <span
                           className={`${styles.badge} ${u.status === "suspended" ? styles.badgeSuspended : styles.badgeActive}`}
@@ -726,12 +875,14 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                           {u.status}
                         </span>
                       </td>
+
+                      {/* ACTIONS COLUMN */}
                       <td>
                         <div style={{ display: "flex", gap: "8px" }}>
                           {editingUserId === u.id ? (
                             <>
                               <button
-                                onClick={() => handleUpdateRole(u.id)}
+                                onClick={() => handleUpdateUser(u.id)}
                                 className={styles.primaryBtn}
                                 style={{
                                   padding: "6px 12px",
@@ -756,7 +907,13 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                               <button
                                 onClick={() => {
                                   setEditingUserId(u.id);
-                                  setSelectedRoleId(u.role_id);
+                                  setEditFormData({
+                                    first_name: u.first_name,
+                                    last_name: u.last_name,
+                                    phone_number: u.phone_number || "",
+                                    role_id: u.role_id,
+                                    department_id: u.department_id || "",
+                                  });
                                 }}
                                 className={styles.secondaryBtn}
                                 style={{
