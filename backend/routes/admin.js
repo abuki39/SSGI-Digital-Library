@@ -81,7 +81,10 @@ router.post("/users", async (req, res) => {
 
   const username = email.split("@")[0];
   const cleanUsername = username.replace(/\./g, "");
-  const passwordToHash = password || `Ssgi@2026!${cleanUsername}`;
+
+  // DYNAMIC YEAR LOGIC APPLIED HERE
+  const currentYear = new Date().getFullYear();
+  const passwordToHash = password || `Ssgi@${currentYear}!${cleanUsername}`;
 
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -192,6 +195,9 @@ router.post("/users/bulk", upload.single("file"), async (req, res) => {
         const phoneRegex = /^(?:\+251|0)[79]\d{8}$/;
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+        // Define current year for the loop
+        const currentYear = new Date().getFullYear();
+
         for (const row of results) {
           const email = row.email?.trim();
           const firstName = row.first_name?.trim();
@@ -244,7 +250,11 @@ router.post("/users/bulk", upload.single("file"), async (req, res) => {
             }
             passwordHash = await bcrypt.hash(row.password.trim(), 10);
           } else {
-            passwordHash = await bcrypt.hash(`Ssgi@2026!${cleanUsername}`, 10);
+            // DYNAMIC YEAR LOGIC APPLIED HERE FOR CSV IMPORTS
+            passwordHash = await bcrypt.hash(
+              `Ssgi@${currentYear}!${cleanUsername}`,
+              10,
+            );
           }
 
           try {
