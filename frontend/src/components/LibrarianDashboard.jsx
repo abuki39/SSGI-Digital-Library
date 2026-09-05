@@ -4,6 +4,8 @@ import api from "../api";
 import NotificationCenter from "./NotificationCenter";
 
 const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
+  const currentTheme = localStorage.getItem("theme_preference") || "light";
+  const isDark = currentTheme === "dark";
   const [documents, setDocuments] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [staffDepartments, setStaffDepartments] = useState([]);
@@ -359,7 +361,9 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
   };
 
   return (
-    <div className={`${styles.librarianLayout} ${isDark ? styles.darkTheme : ""}`}>
+    <div
+      className={`${styles.librarianLayout} ${isDark ? styles.darkTheme : ""}`}
+    >
       {/* Header Navigation */}
       <header className={styles.header}>
         <div className={styles.brandBox}>
@@ -391,9 +395,11 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
           {/* Navigation Toggle between Inventory and Notifications */}
           <button
             className={styles.signOutBtn}
-            style={{ marginBottom: "10px",
+            style={{
+              marginBottom: "10px",
               backgroundColor:
-                activeView === "notifications" ? "#10b981" : "#374151" }}
+                activeView === "notifications" ? "#10b981" : "#374151",
+            }}
             onClick={() =>
               setActiveView(
                 activeView === "inventory" ? "notifications" : "inventory",
@@ -637,10 +643,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan="6"
-                          style={{ textAlign: "center" }}
-                        >
+                        <td colSpan="6" style={{ textAlign: "center" }}>
                           No documents found matching your criteria.
                         </td>
                       </tr>
@@ -663,9 +666,11 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
             <form onSubmit={handleSave}>
               {message && (
                 <p
-                  style={{ color: message.startsWith("Error") ? "#ef4444" : "#10b981",
+                  style={{
+                    color: message.startsWith("Error") ? "#ef4444" : "#10b981",
                     marginBottom: "15px",
-                    fontWeight: "bold" }}
+                    fontWeight: "bold",
+                  }}
                 >
                   {message}
                 </p>
@@ -729,9 +734,11 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                 <div className={styles.formGroup}>
                   <label>Department Access</label>
                   <p
-                    style={{ fontSize: "12px",
-                      
-                      marginBottom: "5px" }}
+                    style={{
+                      fontSize: "12px",
+
+                      marginBottom: "5px",
+                    }}
                   >
                     Hold Ctrl/Cmd to select multiple. Leave empty for
                     Global/All.
@@ -775,10 +782,12 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
               </div>
               <div
                 className={styles.formGroup}
-                style={{ display: "flex",
+                style={{
+                  display: "flex",
                   gap: "20px",
                   alignItems: "center",
-                  marginBottom: "15px" }}
+                  marginBottom: "15px",
+                }}
               >
                 <label
                   style={{ display: "flex", alignItems: "center", gap: "5px" }}
@@ -832,10 +841,12 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows="3"
-                      style={{ width: "100%",
+                      style={{
+                        width: "100%",
                         padding: "10px",
                         borderRadius: "4px",
-                        border: "1px solid #cbd5e0" }}
+                        border: "1px solid #cbd5e0",
+                      }}
                     />
                   </div>
                 </>
@@ -865,10 +876,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
             <h2 className={styles.modalHeader}>Edit Document Metadata</h2>
             <form onSubmit={handleUpdate}>
               {editMessage && (
-                <p
-                  style={{ marginBottom: "15px",
-                    fontWeight: "bold" }}
-                >
+                <p style={{ marginBottom: "15px", fontWeight: "bold" }}>
                   {editMessage}
                 </p>
               )}
@@ -955,22 +963,26 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
             </div>
             <iframe
               src={previewUrl}
-              style={{ width: "100%",
+              style={{
+                width: "100%",
                 flex: 1,
                 border: "1px solid #e5e7eb",
-                borderRadius: "8px" }}
+                borderRadius: "8px",
+              }}
               title="Document Preview"
             />
 
             {/* Show Approve/Reject ONLY if the doc is pending */}
             {previewDoc.status === "pending" && (
               <div
-                style={{ display: "flex",
+                style={{
+                  display: "flex",
                   justifyContent: "flex-end",
                   gap: "10px",
                   marginTop: "20px",
                   borderTop: "1px solid #e5e7eb",
-                  paddingTop: "20px" }}
+                  paddingTop: "20px",
+                }}
               >
                 <button
                   className={styles.primaryActionBtn}

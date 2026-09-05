@@ -4,6 +4,7 @@ import NotificationCenter from "./NotificationCenter";
 
 const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
   const [departments, setDepartments] = useState([]);
+  const [staffDepartments, setStaffDepartments] = useState([]);
   const [roles, setRoles] = useState([]);
   const [myDocuments, setMyDocuments] = useState([]);
 
@@ -16,6 +17,9 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
   const [keywords, setKeywords] = useState("");
   const [serial, setSerial] = useState("");
   const [file, setFile] = useState(null);
+  const [isLink, setIsLink] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [targetRoleId, setTargetRoleId] = useState("");
   const [departmentIds, setDepartmentIds] = useState([]);
   const [message, setMessage] = useState("");
@@ -79,14 +83,38 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
     } catch (err) {
       console.error("Failed to fetch departments", err);
     }
+
+    try {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + "/api/staff-departments",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (res.ok) {
+        setStaffDepartments(await res.json());
+      }
+    } catch (err) {
+      console.error("Failed to fetch staff departments", err);
+    }
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     setMessage("");
 
-    if (!title || !author || !serial || !file) {
-      setMessage("Title, Author, Serial Number, and a PDF File are required.");
+    if (!title || !author || !serial) {
+      setMessage("Title, Author, and Serial Number are required.");
+      return;
+    }
+
+    if (!isLink && !file) {
+      setMessage("A PDF File is required.");
+      return;
+    }
+
+    if (isLink && !linkUrl) {
+      setMessage("An External Link URL is required.");
       return;
     }
 
@@ -97,15 +125,24 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
       formData.append("category", category);
       formData.append("keywords", keywords);
       formData.append("serial_number", serial);
+      formData.append("is_link", isLink);
+
+      if (isLink) {
+        formData.append("link_url", linkUrl);
+        formData.append("description", description);
+      }
 
       const isTrainee = targetRoleId === "1";
+      const isStaff = targetRoleId === "2";
 
       if (targetRoleId) formData.append("target_role_id", targetRoleId);
-      if (isTrainee && departmentIds && departmentIds.length > 0) {
+      if ((isTrainee || isStaff) && departmentIds && departmentIds.length > 0) {
         formData.append("department_ids", JSON.stringify(departmentIds));
       }
 
-      formData.append("documentFile", file);
+      if (!isLink) {
+        formData.append("documentFile", file);
+      }
 
       const res = await fetch(import.meta.env.VITE_API_URL + "/api/documents", {
         method: "POST",
@@ -124,8 +161,11 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
         setKeywords("");
         setSerial("");
         setFile(null);
+        setLinkUrl("");
+        setDescription("");
         setTargetRoleId("");
         setDepartmentIds([]);
+        setIsLink(false);
         if (document.getElementById("staffFileInput")) {
           document.getElementById("staffFileInput").value = "";
         }
@@ -166,14 +206,8 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
   };
 
   return (
-    <div
-      className={`${styles.staffLayout} ${isDark ? styles.darkTheme : ""}`}
-      
-    >
-      <header
-        className={styles.staffHeader}
-        
-      >
+    <div className={`${styles.staffLayout} ${isDark ? styles.darkTheme : ""}`}>
+      <header className={styles.staffHeader}>
         <div className={styles.brandBox}>
           <svg
             className={styles.shieldIcon}
@@ -196,18 +230,22 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
         </div>
         <div
           className={styles.headerActions}
-          style={{ display: "flex",
+          style={{
+            display: "flex",
             alignItems: "center",
             gap: "10px",
-            flexWrap: "wrap" }}
+            flexWrap: "wrap",
+          }}
         >
           <span className={styles.greeting}>Welcome, Staff Member</span>
 
           <button
             className={styles.signOutBtn}
-            style={{ marginBottom: "10px",
+            style={{
+              marginBottom: "10px",
               backgroundColor:
-                activeView === "notifications" ? "#10b981" : "#374151" }}
+                activeView === "notifications" ? "#10b981" : "#374151",
+            }}
             onClick={() =>
               setActiveView(
                 activeView === "inventory" ? "notifications" : "inventory",
@@ -245,10 +283,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
 
       <main className={styles.mainContent}>
         {activeView === "notifications" ? (
-          <div
-            className={styles.card}
-            
-          >
+          <div className={styles.card}>
             <NotificationCenter isLibrarian={false} userRole="Staff Members" />
           </div>
         ) : (
@@ -281,11 +316,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
             <div className={styles.documentGrid}>
               {filteredDocs.length > 0 ? (
                 filteredDocs.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className={styles.docCard}
-                    
-                  >
+                  <div key={doc.id} className={styles.docCard}>
                     <div className={styles.docHeader}>
                       <h3 className={styles.docTitle}>{doc.title}</h3>
                       <span
@@ -318,9 +349,11 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                 ))
               ) : (
                 <p
-                  style={{ gridColumn: "1 / -1",
+                  style={{
+                    gridColumn: "1 / -1",
                     textAlign: "center",
-                    padding: "40px" }}
+                    padding: "40px",
+                  }}
                 >
                   No documents found matching your criteria.
                 </p>
@@ -337,9 +370,11 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
             <form onSubmit={handleSave}>
               {message && (
                 <p
-                  style={{ color: message.startsWith("Error") ? "#ef4444" : "#10b981",
+                  style={{
+                    color: message.startsWith("Error") ? "#ef4444" : "#10b981",
                     marginBottom: "15px",
-                    fontWeight: "bold" }}
+                    fontWeight: "bold",
+                  }}
                 >
                   {message}
                 </p>
@@ -377,6 +412,67 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                 </select>
               </div>
               <div className={styles.formGroup}>
+                <label>Keywords (comma separated)</label>
+                <input
+                  type="text"
+                  placeholder="e.g., mapping, topography"
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Target Role (Who can view this?)</label>
+                <select
+                  value={targetRoleId}
+                  onChange={(e) => setTargetRoleId(e.target.value)}
+                >
+                  <option value="">Public / All Roles</option>
+                  <option value="1">Trainee</option>
+                  <option value="2">Staff</option>
+                  <option value="3">Librarian</option>
+                  <option value="4">Admin</option>
+                </select>
+              </div>
+              {(targetRoleId === "1" || targetRoleId === "2") && (
+                <div className={styles.formGroup}>
+                  <label>Department Access</label>
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    Hold Ctrl/Cmd to select multiple. Leave empty for
+                    Global/All.
+                  </p>
+                  <select
+                    multiple
+                    value={departmentIds}
+                    onChange={(e) =>
+                      setDepartmentIds(
+                        Array.from(
+                          e.target.selectedOptions,
+                          (option) => option.value,
+                        ),
+                      )
+                    }
+                    style={{ minHeight: "100px" }}
+                  >
+                    {targetRoleId === "2"
+                      ? staffDepartments.map((dept) => (
+                          <option key={dept.id} value={dept.id}>
+                            {dept.name}
+                          </option>
+                        ))
+                      : departments.map((dept) => (
+                          <option key={dept.id} value={dept.id}>
+                            {dept.name}
+                          </option>
+                        ))}
+                  </select>
+                </div>
+              )}
+              <div className={styles.formGroup}>
                 <label>Serial Number</label>
                 <input
                   type="text"
@@ -386,16 +482,79 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   required
                 />
               </div>
-              <div className={styles.formGroup}>
-                <label>Document File</label>
-                <input
-                  id="staffFileInput"
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => setFile(e.target.files[0])}
-                  required
-                />
+
+              <div
+                className={styles.formGroup}
+                style={{
+                  display: "flex",
+                  gap: "20px",
+                  alignItems: "center",
+                  marginBottom: "15px",
+                }}
+              >
+                <label
+                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                >
+                  <input
+                    type="radio"
+                    checked={!isLink}
+                    onChange={() => setIsLink(false)}
+                  />
+                  Upload Document
+                </label>
+                <label
+                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                >
+                  <input
+                    type="radio"
+                    checked={isLink}
+                    onChange={() => setIsLink(true)}
+                  />
+                  Add External Link
+                </label>
               </div>
+
+              {!isLink ? (
+                <div className={styles.formGroup}>
+                  <label>Document File</label>
+                  <input
+                    id="staffFileInput"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.jpg,.jpeg,.png,.svg,.txt,.md,.zip,.gz"
+                    onChange={(e) => setFile(e.target.files[0])}
+                    required
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className={styles.formGroup}>
+                    <label>External URL</label>
+                    <input
+                      type="url"
+                      placeholder="https://example.com/reference"
+                      value={linkUrl}
+                      onChange={(e) => setLinkUrl(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>External Information / Description</label>
+                    <textarea
+                      placeholder="Add notes, context, or metadata about this reference..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows="3"
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "4px",
+                        border: "1px solid #cbd5e0",
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+
               <div className={styles.modalActions}>
                 <button
                   type="button"
