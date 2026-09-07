@@ -438,16 +438,30 @@
   border: 1px solid #4a5568;
 }
 
-.darkTheme input,
-.darkTheme select,
-.darkTheme textarea {
+.darkTheme .formGroup input,
+.darkTheme .formGroup select,
+.darkTheme .formGroup textarea,
+.darkTheme .searchBar input,
+.darkTheme .searchBar select {
   background-color: #4a5568;
   color: #ffffff;
   border: 1px solid #718096;
 }
 
-.darkTheme input::placeholder {
+.darkTheme .formGroup input::placeholder,
+.darkTheme .searchBar input::placeholder {
   color: #a0aec0;
+}
+
+.darkTheme .formGroup input:focus,
+.darkTheme .formGroup select:focus,
+.darkTheme .formGroup textarea:focus,
+.darkTheme .searchBar input:focus,
+.darkTheme .searchBar select:focus {
+  background-color: #2d3748;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  color: #ffffff;
 }
 
 .darkTheme table {
