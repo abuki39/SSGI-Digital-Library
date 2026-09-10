@@ -18,6 +18,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
   const [keywords, setKeywords] = useState("");
   const [serial, setSerial] = useState("");
   const [file, setFile] = useState(null);
+  const [coverImage, setCoverImage] = useState(null);
   const [isLink, setIsLink] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -157,6 +158,10 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
 
       if (!isLink) {
         formData.append("documentFile", file);
+
+        if (coverImage) {
+          formData.append("coverImage", coverImage);
+        }
       }
 
       const res = await fetch(import.meta.env.VITE_API_URL + "/api/documents", {
@@ -177,6 +182,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
         setKeywords("");
         setSerial("");
         setFile(null);
+        setCoverImage(null);
         setLinkUrl("");
         setDescription("");
         setTargetRoleId("");
@@ -185,6 +191,10 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
 
         if (document.getElementById("staffFileInput")) {
           document.getElementById("staffFileInput").value = "";
+        }
+
+        if (document.getElementById("staffCoverImageInput")) {
+          document.getElementById("staffCoverImageInput").value = "";
         }
 
         fetchMyDocuments();
@@ -203,16 +213,18 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
       setMessage("Network error. Please try again.");
     }
   };
-
   const handleSignOut = () => {
     localStorage.removeItem("token");
     window.location.reload();
   };
 
   const filteredDocs = myDocuments.filter((doc) => {
+    const title = String(doc.title || "");
+    const author = String(doc.author || "");
+
     const matchesSearch =
-      doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.author.toLowerCase().includes(searchQuery.toLowerCase());
+      title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      author.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory = filterCategory
       ? doc.category === filterCategory
@@ -221,36 +233,14 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
     return matchesSearch && matchesCategory;
   });
 
-  const getStatusClass = (status) => {
-    const normalizedStatus = String(status || "").toLowerCase();
-
-    if (normalizedStatus === "approved") {
-      return styles.statusApproved;
-    }
-
-    if (normalizedStatus === "rejected") {
-      return styles.statusRejected;
-    }
-
-    return styles.statusPending;
-  };
-
-  const getStatusLabel = (status) => {
-    const normalizedStatus = String(status || "").toLowerCase();
-
-    if (normalizedStatus === "approved") {
-      return "Approved";
-    }
-
-    if (normalizedStatus === "rejected") {
-      return "Rejected";
-    }
-
-    return "Pending";
-  };
-
   return (
-    <div className={`${styles.staffLayout} ${isDark ? styles.darkTheme : ""}`}>
+    <div
+      className={`${styles.staffLayout} ${isDark ? styles.darkTheme : ""}`}
+      style={{
+        backgroundColor: bgDashboard,
+        color: textDashboard,
+      }}
+    >
       <header className={styles.staffHeader}>
         <div className={styles.brandBox}>
           <svg
@@ -393,41 +383,89 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
               {filteredDocs.length > 0 ? (
                 filteredDocs.map((doc) => (
                   <div key={doc.id} className={styles.docCard}>
-                    <div className={styles.docHeader}>
-                      <h3 className={styles.docTitle}>{doc.title}</h3>
+                    {/* Document Cover Image */}
+                    <div className={styles.docCover}>
+                      {doc.cover_image ? (
+                        <img
+                          src={doc.cover_image}
+                          alt={`${doc.title} cover`}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
 
-                      <span
-                        className={`${styles.statusBadge} ${getStatusClass(
-                          doc.status,
-                        )}`}
+                            const parent = e.currentTarget.parentElement;
+
+                            if (parent) {
+                              parent.innerHTML = `
+                                <div style="
+                                  display:flex;
+                                  align-items:center;
+                                  justify-content:center;
+                                  width:100%;
+                                  height:100%;
+                                  color:${isDark ? "#cbd5e1" : "#667085"};
+                                  font-size:14px;
+                                  font-weight:600;
+                                ">
+                                  📄 Document Cover
+                                </div>
+                              `;
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "100%",
+                            height: "100%",
+                            color: isDark ? "#cbd5e1" : "#667085",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          📄 Document Cover
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Document Information */}
+                    <div className={styles.docCardContent}>
+                      <div className={styles.docHeader}>
+                        <h3 className={styles.docTitle}>{doc.title}</h3>
+                      </div>
+
+                      <span className={styles.docCategory}>{doc.category}</span>
+
+                      <div className={styles.docMeta}>
+                        <p>
+                          <strong>Author:</strong> {doc.author}
+                        </p>
+
+                        <p>
+                          <strong>Serial:</strong> {doc.serial_number}
+                        </p>
+
+                        <p>
+                          <strong>Uploaded:</strong>{" "}
+                          {new Date(doc.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      <button
+                        className={styles.docActionBtn}
+                        onClick={() => onViewDocument && onViewDocument(doc)}
                       >
-                        {getStatusLabel(doc.status)}
-                      </span>
+                        View Document
+                      </button>
                     </div>
-
-                    <span className={styles.docCategory}>{doc.category}</span>
-
-                    <div className={styles.docMeta}>
-                      <p>
-                        <strong>Author:</strong> {doc.author}
-                      </p>
-
-                      <p>
-                        <strong>Serial:</strong> {doc.serial_number}
-                      </p>
-
-                      <p>
-                        <strong>Uploaded:</strong>{" "}
-                        {new Date(doc.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-
-                    <button
-                      className={styles.docActionBtn}
-                      onClick={() => onViewDocument && onViewDocument(doc)}
-                    >
-                      View Document
-                    </button>
                   </div>
                 ))
               ) : (
@@ -629,19 +667,33 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
               </div>
 
               {!isLink ? (
-                <div className={styles.formGroup}>
-                  <label>
-                    Document File <span className={styles.requiredMark}>*</span>
-                  </label>
+                <>
+                  <div className={styles.formGroup}>
+                    <label>
+                      Document File{" "}
+                      <span className={styles.requiredMark}>*</span>
+                    </label>
 
-                  <input
-                    id="staffFileInput"
-                    type="file"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.jpg,.jpeg,.png,.svg,.txt,.md,.zip,.gz"
-                    onChange={(e) => setFile(e.target.files[0])}
-                    required
-                  />
-                </div>
+                    <input
+                      id="staffFileInput"
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.jpg,.jpeg,.png,.svg,.txt,.md,.zip,.gz"
+                      onChange={(e) => setFile(e.target.files[0] || null)}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Cover Image</label>
+
+                    <input
+                      id="staffCoverImageInput"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={(e) => setCoverImage(e.target.files[0] || null)}
+                    />
+                  </div>
+                </>
               ) : (
                 <>
                   <div className={styles.formGroup}>
@@ -698,5 +750,4 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
     </div>
   );
 };
-
 export default StaffDashboard;

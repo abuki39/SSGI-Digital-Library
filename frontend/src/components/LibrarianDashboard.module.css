@@ -307,6 +307,23 @@
 }
 
 /* =========================================================
+   DISABLED ACTION BUTTONS
+   ========================================================= */
+
+.uploadBtn:disabled,
+.primaryActionBtn:disabled,
+.secondaryActionBtn:disabled,
+.dangerActionBtn:disabled,
+.signOutBtn:disabled {
+  background-color: #eaecf0 !important;
+  color: #98a2b3 !important;
+  border-color: #eaecf0 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* =========================================================
    CARDS
    ========================================================= */
 
@@ -462,8 +479,171 @@
 }
 
 /* =========================================================
-   MODAL HEADER
+   REJECT DOCUMENT MODAL
    ========================================================= */
+
+.rejectModalContent {
+  width: 90%;
+  max-width: 560px;
+  max-height: 90vh;
+  padding: 30px;
+  overflow-y: auto;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 48px rgba(16, 24, 40, 0.24);
+  animation: rejectModalAppear 0.18s ease-out;
+}
+
+@keyframes rejectModalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rejectModalHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.rejectIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  color: #b42318;
+  background-color: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 12px;
+}
+
+.rejectModalTitle {
+  margin: 0 0 5px;
+  color: var(--text-primary);
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.rejectModalSubtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rejectDocumentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 22px;
+  padding: 15px 16px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.rejectDocumentLabel {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.rejectDocumentTitle {
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.rejectDocumentAuthor {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.rejectionTextarea {
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  transition:
+    border-color var(--transition-normal),
+    box-shadow var(--transition-normal),
+    background-color var(--transition-normal);
+}
+
+.rejectionTextarea:hover {
+  border-color: var(--border-dark);
+}
+
+.rejectionTextarea:focus {
+  background-color: var(--bg-surface);
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(240, 68, 56, 0.12);
+}
+
+.rejectionTextarea::placeholder {
+  color: var(--text-muted);
+}
+
+.rejectionCharacterCount {
+  margin-top: 6px;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.rejectErrorMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  color: #b42318;
+  background-color: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.rejectModalActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ============================================================
+   MODAL HEADER
+   ============================================================ */
 
 .modalHeader {
   margin-top: 0;
@@ -474,9 +654,9 @@
   line-height: 1.3;
 }
 
-/* =========================================================
+/* ============================================================
    FORM GROUP
-   ========================================================= */
+   ============================================================ */
 
 .formGroup {
   margin-bottom: 18px;
@@ -529,9 +709,9 @@
   color: var(--text-muted);
 }
 
-/* =========================================================
+/* ============================================================
    MODAL ACTIONS
-   ========================================================= */
+   ============================================================ */
 
 .modalActions {
   display: flex;
@@ -541,9 +721,9 @@
   margin-top: 25px;
 }
 
-/* =========================================================
+/* ============================================================
    SECTION HEADER
-   ========================================================= */
+   ============================================================ */
 
 .sectionHeader {
   display: flex;
@@ -553,26 +733,9 @@
   margin-bottom: 20px;
 }
 
-/* =========================================================
-   DISABLED BUTTONS
-   ========================================================= */
-
-.uploadBtn:disabled,
-.primaryActionBtn:disabled,
-.secondaryActionBtn:disabled,
-.dangerActionBtn:disabled,
-.signOutBtn:disabled {
-  background-color: #eaecf0 !important;
-  color: #98a2b3 !important;
-  border-color: #eaecf0 !important;
-  cursor: not-allowed !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-
-/* =========================================================
+/* ============================================================
    DARK THEME
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme {
   min-height: 100vh;
@@ -580,9 +743,9 @@
   color: #f8fafc;
 }
 
-/* =========================================================
+/* ============================================================
    DARK HEADER
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .header,
 .darkTheme header,
@@ -594,9 +757,9 @@
   border-bottom: 1px solid #263b55;
 }
 
-/* =========================================================
+/* ============================================================
    DARK BRAND
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .brandSecure {
   color: #f8fafc;
@@ -606,9 +769,9 @@
   color: #7da6ff;
 }
 
-/* =========================================================
+/* ============================================================
    DARK ROLE BADGE
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .roleBadge {
   background-color: rgba(21, 94, 239, 0.18);
@@ -616,17 +779,17 @@
   border-color: rgba(91, 141, 239, 0.35);
 }
 
-/* =========================================================
+/* ============================================================
    DARK MAIN CONTENT
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .mainContent {
   background-color: #071525;
 }
 
-/* =========================================================
+/* ============================================================
    DARK CARDS
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .card,
 .darkTheme .docCard,
@@ -637,9 +800,9 @@
   border: 1px solid #263b55;
 }
 
-/* =========================================================
+/* ============================================================
    DARK HEADINGS
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme h2,
 .darkTheme h3,
@@ -648,9 +811,9 @@
   color: #ffffff;
 }
 
-/* =========================================================
+/* ============================================================
    DARK TEXT
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme p,
 .darkTheme .docMeta p,
@@ -660,18 +823,18 @@
   color: #cbd5e1;
 }
 
-/* =========================================================
+/* ============================================================
    DARK CATEGORY
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .docCategory {
   background-color: #1e3a5f;
   color: #dbeafe;
 }
 
-/* =========================================================
+/* ============================================================
    DARK SEARCH BAR
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .searchBar input,
 .darkTheme .searchBar select {
@@ -697,9 +860,9 @@
   box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.16);
 }
 
-/* =========================================================
+/* ============================================================
    DARK FORM INPUTS
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme input,
 .darkTheme select,
@@ -723,9 +886,9 @@
   box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.16);
 }
 
-/* =========================================================
+/* ============================================================
    DARK FORM GROUP
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .formGroup input,
 .darkTheme .formGroup select,
@@ -753,9 +916,9 @@
   color: #cbd5e1;
 }
 
-/* =========================================================
+/* ============================================================
    DARK TABLE
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .tableWrapper {
   background-color: #10243d;
@@ -782,21 +945,86 @@
   background-color: #172f4b;
 }
 
-/* =========================================================
+/* ============================================================
    DARK MODALS
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .modalContent,
 .darkTheme .modalContentPreview,
+.darkTheme .rejectModalContent,
 .darkTheme .viewerContent {
   background-color: #10243d;
   color: #f8fafc;
   border: 1px solid #263b55;
 }
 
-/* =========================================================
+/* ============================================================
+   DARK REJECT MODAL
+   ============================================================ */
+
+.darkTheme .rejectIconWrapper {
+  color: #ff8a82;
+  background-color: rgba(240, 68, 56, 0.12);
+  border-color: rgba(240, 68, 56, 0.35);
+}
+
+.darkTheme .rejectModalTitle,
+.darkTheme .rejectDocumentTitle {
+  color: #ffffff;
+}
+
+.darkTheme .rejectModalSubtitle,
+.darkTheme .rejectDocumentAuthor {
+  color: #cbd5e1;
+}
+
+.darkTheme .rejectDocumentInfo {
+  background-color: #172f4b;
+  border-color: #35506f;
+}
+
+.darkTheme .rejectDocumentLabel {
+  color: #94a3b8;
+}
+
+.darkTheme .rejectionTextarea {
+  background-color: #172f4b;
+  color: #ffffff;
+  border-color: #35506f;
+}
+
+.darkTheme .rejectionTextarea::placeholder {
+  color: #94a3b8;
+}
+
+.darkTheme .rejectionTextarea:hover {
+  border-color: #4b6a8d;
+}
+
+.darkTheme .rejectionTextarea:focus {
+  background-color: #193653;
+  color: #ffffff;
+  border-color: #ff6b61;
+  box-shadow: 0 0 0 3px rgba(240, 68, 56, 0.16);
+}
+
+.darkTheme .rejectionCharacterCount {
+  color: #94a3b8;
+}
+
+.darkTheme .rejectErrorMessage {
+  color: #ffb4ae;
+  background-color: rgba(240, 68, 56, 0.12);
+  border-color: rgba(240, 68, 56, 0.35);
+}
+
+.darkTheme .rejectModalActions {
+  border-top-color: #263b55;
+}
+
+/* ============================================================
    DARK WELCOME / NOTICE
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .welcomeBanner {
   background-color: #10243d;
@@ -808,9 +1036,9 @@
   color: #cbd5e1;
 }
 
-/* =========================================================
+/* ============================================================
    DARK SECONDARY ACTION
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .secondaryActionBtn {
   background-color: #172f4b;
@@ -824,9 +1052,9 @@
   border-color: #4b6a8d;
 }
 
-/* =========================================================
+/* ============================================================
    DARK SIGN OUT
-   ========================================================= */
+   ============================================================ */
 
 .darkTheme .signOutBtn {
   background-color: rgba(240, 68, 56, 0.12);
@@ -840,9 +1068,9 @@
   border-color: rgba(240, 68, 56, 0.5);
 }
 
-/* =========================================================
+/* ============================================================
    TABLET
-   ========================================================= */
+   ============================================================ */
 
 @media (max-width: 1024px) {
   .mainContent {
@@ -866,9 +1094,9 @@
   }
 }
 
-/* =========================================================
+/* ============================================================
    MOBILE
-   ========================================================= */
+   ============================================================ */
 
 @media (max-width: 768px) {
   .librarianLayout {
@@ -957,7 +1185,8 @@
   }
 
   .modalContent,
-  .modalContentPreview {
+  .modalContentPreview,
+  .rejectModalContent {
     width: 100%;
     max-width: 100%;
     padding: 20px;
@@ -972,6 +1201,23 @@
     height: 90vh;
   }
 
+  .rejectModalContent {
+    max-height: 90vh;
+  }
+
+  .rejectModalHeader {
+    gap: 12px;
+  }
+
+  .rejectIconWrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .rejectModalTitle {
+    font-size: 20px;
+  }
+
   .formGroup input,
   .formGroup select,
   .formGroup textarea {
@@ -979,12 +1225,14 @@
     font-size: 16px;
   }
 
-  .modalActions {
+  .modalActions,
+  .rejectModalActions {
     flex-direction: column-reverse;
     align-items: stretch;
   }
 
-  .modalActions button {
+  .modalActions button,
+  .rejectModalActions button {
     width: 100%;
     padding: 12px 18px;
   }
@@ -996,9 +1244,9 @@
   }
 }
 
-/* =========================================================
+/* ============================================================
    SMALL MOBILE
-   ========================================================= */
+   ============================================================ */
 
 @media (max-width: 480px) {
   .header {
@@ -1051,11 +1299,24 @@
   }
 
   .modalContent,
-  .modalContentPreview {
+  .modalContentPreview,
+  .rejectModalContent {
     padding: 18px;
   }
 
   .modalHeader {
     font-size: 20px;
+  }
+
+  .rejectModalTitle {
+    font-size: 19px;
+  }
+
+  .rejectModalSubtitle {
+    font-size: 13px;
+  }
+
+  .rejectDocumentInfo {
+    padding: 13px;
   }
 }

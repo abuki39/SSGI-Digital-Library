@@ -1,26 +1,42 @@
 /* =========================================================
    SSGI SecureDoc — Document Viewer
-   Design System
+   Premium Space & Geospatial Science Design System
    ========================================================= */
 
 .viewerContainer {
-  --primary: #0b1f3a;
-  --action: #155eef;
-  --accent: #d4a72c;
+  --primary: #071326;
+  --primary-light: #0d1b2c;
+
+  --action: #c49b35;
+  --action-light: #d6b457;
+  --action-hover: #e3c86b;
+
   --page-bg: #f5f7fa;
   --surface: #ffffff;
+
   --text: #172033;
   --muted: #667085;
+
   --border: #e4e7ec;
   --disabled: #98a2b3;
 
   position: relative;
+
   width: 100%;
   max-width: 900px;
+
   margin: 0 auto;
 
-  background: var(--page-bg);
+  background:
+    radial-gradient(
+      circle at 90% 5%,
+      rgba(196, 155, 53, 0.045),
+      transparent 25%
+    ),
+    var(--page-bg);
+
   padding: 20px;
+
   border: 1px solid var(--border);
   border-radius: 12px;
 
@@ -33,6 +49,7 @@
 
   height: auto;
   min-height: 100%;
+
   overflow-y: auto;
 
   /* Prevent text highlighting and copying */
@@ -44,17 +61,36 @@
   box-sizing: border-box;
 }
 
+/* Premium gold top accent */
+.viewerContainer::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 3px;
+
+  background: linear-gradient(90deg, #b88d29, #d6b457, #c49b35);
+
+  border-radius: 12px 12px 0 0;
+}
+
 /* =========================================================
    Document Canvas Wrapper
    ========================================================= */
 
 .canvasWrapper {
   position: relative;
+
   width: 100%;
 
   background: var(--surface);
 
   border: 1px solid var(--border);
+
   border-radius: 8px;
 
   box-shadow:
@@ -79,10 +115,12 @@
 .documentCanvas {
   width: 100%;
   height: auto;
+
   display: block;
 
   /* Prevent accidental dragging */
   -webkit-user-drag: none;
+
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -95,6 +133,7 @@
 
 .watermarkOverlay {
   position: absolute;
+
   top: 0;
   left: 0;
 
@@ -109,6 +148,7 @@
 
   display: flex;
   flex-wrap: wrap;
+
   align-content: flex-start;
 
   opacity: 0.15;
@@ -128,6 +168,7 @@
   transform: rotate(-30deg);
 
   font-size: 1.2rem;
+
   font-weight: 700;
 
   color: var(--primary);
@@ -156,19 +197,43 @@
 
   display: flex;
   gap: 12px;
+
   align-items: center;
+
   flex-wrap: wrap;
 
   padding: 12px 14px;
 
-  background: var(--surface);
+  background: linear-gradient(145deg, #ffffff 0%, #fbfcfd 100%);
 
   border: 1px solid var(--border);
+
   border-radius: 10px;
 
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
 
   box-sizing: border-box;
+
+  position: relative;
+}
+
+.controls::before {
+  content: "";
+
+  position: absolute;
+
+  left: 14px;
+  right: 14px;
+  top: 0;
+
+  height: 2px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(196, 155, 53, 0.65),
+    transparent
+  );
 }
 
 /* =========================================================
@@ -178,32 +243,37 @@
 .controls button {
   padding: 9px 17px;
 
-  background-color: var(--action);
-  color: #ffffff;
+  background: linear-gradient(135deg, #b88d29 0%, #c49b35 50%, #d6b457 100%);
 
-  border: 1px solid var(--action);
+  color: #071326;
+
+  border: 1px solid #c49b35;
+
   border-radius: 8px;
 
   cursor: pointer;
 
   font-family: inherit;
+
   font-size: 14px;
-  font-weight: 700;
+
+  font-weight: 800;
 
   transition:
-    background-color 0.2s ease,
+    background 0.2s ease,
     border-color 0.2s ease,
     box-shadow 0.2s ease,
-    transform 0.2s ease;
+    transform 0.15s ease;
 
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+  box-shadow: 0 2px 5px rgba(196, 155, 53, 0.16);
 }
 
 .controls button:hover:not(:disabled) {
-  background-color: #0f4fd4;
-  border-color: #0f4fd4;
+  background: linear-gradient(135deg, #c49b35 0%, #d9b95f 50%, #e3c86b 100%);
 
-  box-shadow: 0 4px 10px rgba(21, 94, 239, 0.18);
+  border-color: #d9b95f;
+
+  box-shadow: 0 5px 12px rgba(196, 155, 53, 0.22);
 
   transform: translateY(-1px);
 }
@@ -215,7 +285,9 @@
 .controls button:focus-visible {
   outline: none;
 
-  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.18);
+  box-shadow:
+    0 0 0 3px rgba(196, 155, 53, 0.17),
+    0 3px 8px rgba(196, 155, 53, 0.18);
 }
 
 /* =========================================================
@@ -224,6 +296,7 @@
 
 .controls button:disabled {
   background-color: var(--disabled);
+
   border-color: var(--disabled);
 
   color: #ffffff;
@@ -231,6 +304,8 @@
   cursor: not-allowed;
 
   box-shadow: none;
+
+  transform: none;
 }
 
 /* =========================================================
@@ -241,6 +316,7 @@
   color: var(--text);
 
   font-size: 14px;
+
   font-weight: 600;
 
   line-height: 1.5;
@@ -252,48 +328,111 @@
 
 .noSelect {
   user-select: none !important;
+
   -webkit-user-select: none !important;
+
   -moz-user-select: none !important;
+
   -ms-user-select: none !important;
 }
 
 /* =========================================================
    Dark Theme
+   Compatible with .darkTheme
    ========================================================= */
 
 :global(.darkTheme) .viewerContainer {
-  --page-bg: #0f172a;
-  --surface: #172033;
-  --text: #f2f4f7;
+  --page-bg: #07111f;
+  --surface: #0d1b2c;
+  --text: #f8fafc;
   --muted: #98a2b3;
-  --border: #344054;
+  --border: #26384e;
 
-  background: var(--page-bg);
+  background:
+    radial-gradient(
+      circle at 90% 5%,
+      rgba(196, 155, 53, 0.07),
+      transparent 25%
+    ),
+    var(--page-bg);
+
   border-color: var(--border);
 
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.2),
-    0 8px 24px rgba(0, 0, 0, 0.25);
+    0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
 :global(.darkTheme) .canvasWrapper {
   background: #ffffff;
-  border-color: #475467;
 
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border-color: #3a4d65;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
 }
 
 :global(.darkTheme) .watermarkText {
-  color: #0b1f3a;
+  color: #071326;
 }
 
 :global(.darkTheme) .controls {
-  background: var(--surface);
-  border-color: var(--border);
+  background: linear-gradient(145deg, #0d1b2c, #0a1727);
+
+  border-color: #26384e;
 }
 
 :global(.darkTheme) .controls span {
   color: var(--text);
+}
+
+/* =========================================================
+   HTML Dark Theme Support
+   Compatible with Settings.jsx:
+   html.dark
+   ========================================================= */
+
+:global(html.dark) .viewerContainer {
+  --page-bg: #07111f;
+  --surface: #0d1b2c;
+  --text: #f8fafc;
+  --muted: #98a2b3;
+  --border: #26384e;
+
+  background:
+    radial-gradient(
+      circle at 90% 5%,
+      rgba(196, 155, 53, 0.07),
+      transparent 25%
+    ),
+    var(--page-bg);
+
+  border-color: var(--border);
+
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+:global(html.dark) .canvasWrapper {
+  background: #ffffff;
+
+  border-color: #3a4d65;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+:global(html.dark) .watermarkText {
+  color: #071326;
+}
+
+:global(html.dark) .controls {
+  background: linear-gradient(145deg, #0d1b2c, #0a1727);
+
+  border-color: #26384e;
+}
+
+:global(html.dark) .controls span {
+  color: #f8fafc;
 }
 
 /* =========================================================
@@ -303,13 +442,17 @@
 @media (max-width: 768px) {
   .viewerContainer {
     max-width: 100%;
+
     padding: 14px;
+
     border-radius: 10px;
   }
 
   .controls {
     gap: 10px;
+
     margin-top: 14px;
+
     padding: 10px 12px;
   }
 
@@ -319,6 +462,7 @@
 
   .watermarkText {
     font-size: 1rem;
+
     margin: 30px;
   }
 }
@@ -330,6 +474,7 @@
 @media (max-width: 480px) {
   .viewerContainer {
     padding: 10px;
+
     border-radius: 8px;
   }
 
@@ -339,22 +484,120 @@
 
   .controls {
     flex-direction: column;
+
     align-items: stretch;
+
     width: 100%;
   }
 
   .controls button {
     width: 100%;
+
     padding: 11px 14px;
   }
 
   .controls span {
     text-align: center;
+
     font-size: 13px;
   }
 
   .watermarkText {
     font-size: 0.85rem;
+
     margin: 20px;
+  }
+}
+
+/* =========================================================
+   Very Small Screens
+   ========================================================= */
+
+@media (max-width: 360px) {
+  .viewerContainer {
+    padding: 8px;
+  }
+
+  .controls {
+    padding: 9px;
+  }
+
+  .controls button {
+    min-height: 42px;
+
+    font-size: 13px;
+  }
+
+  .controls span {
+    font-size: 12px;
+  }
+
+  .watermarkText {
+    font-size: 0.75rem;
+
+    margin: 15px;
+  }
+}
+
+/* =========================================================
+   System Dark Mode Fallback
+   ========================================================= */
+
+@media (prefers-color-scheme: dark) {
+  :global(html:not(.dark):not(.darkTheme)) .viewerContainer {
+    --page-bg: #07111f;
+    --surface: #0d1b2c;
+    --text: #f8fafc;
+    --muted: #98a2b3;
+    --border: #26384e;
+
+    background:
+      radial-gradient(
+        circle at 90% 5%,
+        rgba(196, 155, 53, 0.07),
+        transparent 25%
+      ),
+      #07111f;
+
+    border-color: #26384e;
+
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.2),
+      0 8px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  :global(html:not(.dark):not(.darkTheme)) .canvasWrapper {
+    background: #ffffff;
+
+    border-color: #3a4d65;
+  }
+
+  :global(html:not(.dark):not(.darkTheme)) .watermarkText {
+    color: #071326;
+  }
+
+  :global(html:not(.dark):not(.darkTheme)) .controls {
+    background: linear-gradient(145deg, #0d1b2c, #0a1727);
+
+    border-color: #26384e;
+  }
+
+  :global(html:not(.dark):not(.darkTheme)) .controls span {
+    color: #f8fafc;
+  }
+}
+
+/* =========================================================
+   Accessibility — Reduced Motion
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .controls button {
+    transition: none;
+  }
+
+  .controls button:hover:not(:disabled),
+  .controls button:active:not(:disabled) {
+    transform: none;
   }
 }

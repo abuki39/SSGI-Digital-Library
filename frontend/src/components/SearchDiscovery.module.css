@@ -1,24 +1,43 @@
 /* =========================================================
    SSGI DIGITAL LIBRARY
-   Search & Discovery Styles
+   Search & Discovery
+   Premium Space & Geospatial Science Design
    ========================================================= */
 
 /* ---------- Search Container ---------- */
 
 .searchContainer {
-  background: var(--surface, #ffffff);
-
-  padding: 30px;
-
-  border: 1px solid var(--border, #e4e7ec);
-  border-radius: 12px;
-
-  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.06);
-
-  margin-bottom: 30px;
+  --primary: #071326;
+  --primary-light: #0d1b2c;
+  --gold: #c49b35;
+  --gold-light: #d6b457;
+  --gold-hover: #e3c86b;
+  --surface: #ffffff;
+  --surface-soft: #f7f8fa;
+  --border: #e1e5eb;
+  --text-primary: #172033;
+  --text-muted: #667085;
 
   width: 100%;
   box-sizing: border-box;
+
+  padding: 30px;
+  margin-bottom: 30px;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(196, 155, 53, 0.08),
+      transparent 32%
+    ),
+    var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  box-shadow:
+    0 8px 24px rgba(7, 19, 38, 0.06),
+    0 2px 6px rgba(7, 19, 38, 0.03);
 }
 
 /* ---------- Search Heading ---------- */
@@ -26,12 +45,31 @@
 .searchContainer h2 {
   margin: 0 0 24px;
 
-  color: var(--primary-navy, #0b1f3a);
+  color: var(--primary);
 
   font-size: 24px;
-  font-weight: 700;
-
+  font-weight: 750;
   line-height: 1.4;
+
+  letter-spacing: -0.01em;
+
+  position: relative;
+  padding-left: 14px;
+}
+
+.searchContainer h2::before {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+
+  width: 3px;
+
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+
+  border-radius: 999px;
 }
 
 /* =========================================================
@@ -40,30 +78,29 @@
 
 .searchBar {
   display: flex;
+  align-items: stretch;
 
-  gap: 15px;
-
-  margin-bottom: 25px;
+  gap: 12px;
 
   width: 100%;
+  margin-bottom: 26px;
 }
 
 /* ---------- Search Input & Select ---------- */
 
 .searchBar input,
 .searchBar select {
-  padding: 14px;
+  box-sizing: border-box;
 
-  border: 1px solid var(--border, #e4e7ec);
+  padding: 14px 15px;
 
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
 
-  background-color: #f9fafb;
-
-  color: var(--text-primary, #172033);
+  background-color: var(--surface-soft);
+  color: var(--text-primary);
 
   font-family: inherit;
-
   font-size: 15px;
 
   outline: none;
@@ -71,7 +108,8 @@
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .searchBar input {
@@ -82,6 +120,7 @@
 .searchBar select {
   flex: 1;
   min-width: 0;
+  cursor: pointer;
 }
 
 /* ---------- Placeholder ---------- */
@@ -94,11 +133,18 @@
 
 .searchBar input:focus,
 .searchBar select:focus {
-  border-color: var(--primary-blue, #155eef);
-
-  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.12);
+  border-color: var(--gold);
 
   background-color: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(196, 155, 53, 0.14),
+    0 3px 8px rgba(7, 19, 38, 0.04);
+}
+
+.searchBar input:focus-visible,
+.searchBar select:focus-visible {
+  outline: none;
 }
 
 /* =========================================================
@@ -106,40 +152,42 @@
    ========================================================= */
 
 .searchBar button {
+  min-height: 48px;
+
   padding: 14px 24px;
 
-  background-color: var(--primary-blue, #155eef);
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
 
-  color: #ffffff;
+  color: #071326;
 
-  border: none;
-
-  border-radius: 8px;
+  border: 1px solid rgba(196, 155, 53, 0.45);
+  border-radius: 9px;
 
   cursor: pointer;
 
   font-family: inherit;
-
   font-size: 15px;
-
-  font-weight: 700;
+  font-weight: 750;
 
   white-space: nowrap;
 
-  transition:
-    background-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  box-shadow: 0 5px 12px rgba(196, 155, 53, 0.18);
 
-  box-shadow: 0 3px 7px rgba(21, 94, 239, 0.18);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .searchBar button:hover {
   transform: translateY(-1px);
 
-  background-color: #0f4dcc;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-hover));
 
-  box-shadow: 0 5px 10px rgba(21, 94, 239, 0.24);
+  border-color: var(--gold-hover);
+
+  box-shadow: 0 8px 16px rgba(196, 155, 53, 0.25);
 }
 
 .searchBar button:active {
@@ -150,12 +198,12 @@
   outline: none;
 
   box-shadow:
-    0 0 0 3px rgba(21, 94, 239, 0.15),
-    0 3px 7px rgba(21, 94, 239, 0.18);
+    0 0 0 3px rgba(196, 155, 53, 0.18),
+    0 5px 12px rgba(196, 155, 53, 0.18);
 }
 
 .searchBar button:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
 
   cursor: not-allowed;
 
@@ -173,7 +221,7 @@
 
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 
-  gap: 25px;
+  gap: 24px;
 
   width: 100%;
 }
@@ -183,62 +231,92 @@
    ========================================================= */
 
 .documentCard {
-  background: var(--surface, #ffffff);
+  position: relative;
 
-  border: 1px solid var(--border, #e4e7ec);
+  min-width: 0;
+  overflow: hidden;
 
   padding: 24px;
 
-  border-radius: 12px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 1),
+    rgba(248, 249, 251, 1)
+  );
 
-  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  box-shadow: 0 4px 12px rgba(7, 19, 38, 0.045);
 
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
 
-  min-width: 0;
+/* Gold top accent */
+
+.documentCard::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 3px;
+
+  background: linear-gradient(
+    90deg,
+    var(--gold),
+    var(--gold-light),
+    transparent
+  );
+
+  opacity: 0.9;
 }
 
 .documentCard:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 
-  box-shadow: 0 10px 20px rgba(16, 24, 40, 0.08);
+  border-color: rgba(196, 155, 53, 0.48);
 
-  border-color: #cfd6e2;
+  box-shadow:
+    0 14px 30px rgba(7, 19, 38, 0.09),
+    0 3px 8px rgba(196, 155, 53, 0.06);
 }
 
 /* ---------- Document Title ---------- */
 
 .documentCard h3 {
-  margin: 0 0 10px;
+  margin: 0 0 11px;
 
-  color: var(--primary-navy, #0b1f3a);
+  color: var(--primary);
 
   font-size: 18px;
-
-  font-weight: 700;
+  font-weight: 750;
 
   line-height: 1.45;
+
+  letter-spacing: -0.01em;
 }
 
 /* ---------- Document Information ---------- */
 
 .documentCard p {
-  color: var(--text-muted, #667085);
-
   margin: 8px 0;
 
-  font-size: 14px;
+  color: var(--text-muted);
 
+  font-size: 14px;
   line-height: 1.6;
 }
 
 .documentCard strong {
-  color: var(--text-primary, #172033);
+  color: var(--text-primary);
 
-  font-weight: 600;
+  font-weight: 650;
 }
 
 /* =========================================================
@@ -246,45 +324,44 @@
    ========================================================= */
 
 .documentCard button {
-  margin-top: 15px;
-
   width: 100%;
+  min-height: 43px;
 
-  min-height: 42px;
+  margin-top: 16px;
 
   padding: 10px 14px;
 
-  background-color: #f2f4f7;
+  background: var(--primary);
 
-  color: var(--primary-blue, #155eef);
+  color: #ffffff;
 
-  border: 1px solid var(--border, #e4e7ec);
-
+  border: 1px solid var(--primary);
   border-radius: 8px;
 
   cursor: pointer;
 
   font-family: inherit;
-
   font-size: 14px;
-
   font-weight: 700;
 
   transition:
-    background-color 0.2s ease,
+    background 0.2s ease,
     color 0.2s ease,
     border-color 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .documentCard button:hover {
-  background-color: #eaf1ff;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
 
-  color: #0f4dcc;
+  color: #071326;
 
-  border-color: #b8cdfc;
+  border-color: var(--gold);
 
   transform: translateY(-1px);
+
+  box-shadow: 0 5px 12px rgba(196, 155, 53, 0.18);
 }
 
 .documentCard button:active {
@@ -294,15 +371,17 @@
 .documentCard button:focus-visible {
   outline: none;
 
-  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.12);
+  box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.16);
 }
 
 .documentCard button:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
 
   cursor: not-allowed;
 
   transform: none;
+
+  box-shadow: none;
 }
 
 /* =========================================================
@@ -311,7 +390,6 @@
 
 .documentCard .status {
   display: inline-flex;
-
   align-items: center;
 
   padding: 4px 9px;
@@ -319,26 +397,30 @@
   border-radius: 999px;
 
   font-size: 12px;
+  font-weight: 650;
 
-  font-weight: 600;
+  border: 1px solid transparent;
 }
 
 .documentCard .approved {
-  background-color: #ecfdf3;
-
+  background: #ecfdf3;
   color: #027a48;
+
+  border-color: #abefc6;
 }
 
 .documentCard .pending {
-  background-color: #fffaeb;
-
+  background: #fffaeb;
   color: #b54708;
+
+  border-color: #fedf89;
 }
 
 .documentCard .rejected {
-  background-color: #fef3f2;
-
+  background: #fef3f2;
   color: #b42318;
+
+  border-color: #fecdca;
 }
 
 /* =========================================================
@@ -353,7 +435,7 @@
   }
 
   .searchBar {
-    gap: 12px;
+    gap: 10px;
   }
 
   .resultsGrid {
@@ -369,7 +451,7 @@
   .searchContainer {
     padding: 20px;
 
-    border-radius: 10px;
+    border-radius: 11px;
   }
 
   .searchContainer h2 {
@@ -383,7 +465,7 @@
 
     align-items: stretch;
 
-    gap: 12px;
+    gap: 11px;
   }
 
   .searchBar input,
@@ -393,9 +475,9 @@
 
     box-sizing: border-box;
 
-    padding: 14px;
-
     min-height: 46px;
+
+    padding: 13px 14px;
 
     font-size: 15px;
   }
@@ -403,7 +485,7 @@
   .resultsGrid {
     grid-template-columns: 1fr;
 
-    gap: 15px;
+    gap: 16px;
   }
 
   .documentCard {
@@ -415,11 +497,15 @@
 
 @media (max-width: 480px) {
   .searchContainer {
-    padding: 15px;
+    padding: 16px;
+
+    margin-bottom: 22px;
   }
 
   .searchContainer h2 {
     font-size: 19px;
+
+    padding-left: 12px;
   }
 
   .documentCard {
@@ -436,6 +522,8 @@
 
   .documentCard button {
     min-height: 44px;
+
+    font-size: 13px;
   }
 }
 
@@ -443,100 +531,269 @@
    DARK MODE
    ========================================================= */
 
+.darkTheme .searchContainer,
+html.dark .searchContainer {
+  --surface: #0b1220;
+  --surface-soft: #101a2b;
+  --border: #25344a;
+  --text-primary: #f5f7fa;
+  --text-muted: #aeb8c7;
+  --primary: #ffffff;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(196, 155, 53, 0.09),
+      transparent 34%
+    ),
+    #0b1220;
+
+  border-color: #25344a;
+
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+}
+
+.darkTheme .searchContainer h2,
+html.dark .searchContainer h2 {
+  color: #ffffff;
+}
+
+/* ---------- Search Controls ---------- */
+
+.darkTheme .searchBar input,
+.darkTheme .searchBar select,
+html.dark .searchBar input,
+html.dark .searchBar select {
+  background-color: #0f1b2d;
+
+  color: #ffffff;
+
+  border-color: #2b3d55;
+}
+
+.darkTheme .searchBar input::placeholder,
+html.dark .searchBar input::placeholder {
+  color: #7f8da3;
+}
+
+.darkTheme .searchBar input:focus,
+.darkTheme .searchBar select:focus,
+html.dark .searchBar input:focus,
+html.dark .searchBar select:focus {
+  background-color: #101d30;
+
+  border-color: var(--gold, #c49b35);
+
+  box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.16);
+}
+
+/* ---------- Search Button ---------- */
+
+.darkTheme .searchBar button,
+html.dark .searchBar button {
+  background: linear-gradient(135deg, #c49b35, #d6b457);
+
+  color: #071326;
+
+  border-color: rgba(214, 180, 87, 0.5);
+}
+
+.darkTheme .searchBar button:hover,
+html.dark .searchBar button:hover {
+  background: linear-gradient(135deg, #d6b457, #e3c86b);
+
+  color: #071326;
+}
+
+/* ---------- Document Cards ---------- */
+
+.darkTheme .documentCard,
+html.dark .documentCard {
+  background: linear-gradient(145deg, #101b2d, #0c1727);
+
+  border-color: #293b53;
+
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
+}
+
+.darkTheme .documentCard:hover,
+html.dark .documentCard:hover {
+  border-color: rgba(196, 155, 53, 0.52);
+
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.32),
+    0 3px 10px rgba(196, 155, 53, 0.07);
+}
+
+.darkTheme .documentCard h3,
+html.dark .documentCard h3 {
+  color: #ffffff;
+}
+
+.darkTheme .documentCard p,
+html.dark .documentCard p {
+  color: #aeb8c7;
+}
+
+.darkTheme .documentCard strong,
+html.dark .documentCard strong {
+  color: #f5f7fa;
+}
+
+/* ---------- Document Button ---------- */
+
+.darkTheme .documentCard button,
+html.dark .documentCard button {
+  background: #17263b;
+
+  color: #d6b457;
+
+  border-color: #30445d;
+}
+
+.darkTheme .documentCard button:hover,
+html.dark .documentCard button:hover {
+  background: linear-gradient(135deg, #c49b35, #d6b457);
+
+  color: #071326;
+
+  border-color: #d6b457;
+}
+
+/* ---------- Dark Status ---------- */
+
+.darkTheme .documentCard .approved,
+html.dark .documentCard .approved {
+  background: rgba(2, 122, 72, 0.16);
+
+  color: #6ce9a6;
+
+  border-color: rgba(108, 233, 166, 0.22);
+}
+
+.darkTheme .documentCard .pending,
+html.dark .documentCard .pending {
+  background: rgba(181, 71, 8, 0.16);
+
+  color: #fdb022;
+
+  border-color: rgba(253, 176, 34, 0.22);
+}
+
+.darkTheme .documentCard .rejected,
+html.dark .documentCard .rejected {
+  background: rgba(180, 35, 24, 0.16);
+
+  color: #f97066;
+
+  border-color: rgba(249, 112, 102, 0.22);
+}
+
+/* =========================================================
+   SYSTEM DARK MODE
+   ========================================================= */
+
 @media (prefers-color-scheme: dark) {
-  /* ---------- Search Container ---------- */
+  html:not(.light) .searchContainer {
+    --surface: #0b1220;
+    --surface-soft: #101a2b;
+    --border: #25344a;
+    --text-primary: #f5f7fa;
+    --text-muted: #aeb8c7;
+    --primary: #ffffff;
 
-  .searchContainer {
-    background: var(--dark-surface, #132944);
+    background:
+      radial-gradient(
+        circle at 100% 0%,
+        rgba(196, 155, 53, 0.09),
+        transparent 34%
+      ),
+      #0b1220;
 
-    border-color: #29415f;
+    border-color: #25344a;
 
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
   }
 
-  .searchContainer h2 {
+  html:not(.light) .searchContainer h2 {
     color: #ffffff;
   }
 
-  /* ---------- Search Controls ---------- */
+  html:not(.light) .searchBar input,
+  html:not(.light) .searchBar select {
+    background-color: #0f1b2d;
 
+    color: #ffffff;
+
+    border-color: #2b3d55;
+  }
+
+  html:not(.light) .searchBar input::placeholder {
+    color: #7f8da3;
+  }
+
+  html:not(.light) .searchBar input:focus,
+  html:not(.light) .searchBar select:focus {
+    background-color: #101d30;
+
+    border-color: #c49b35;
+
+    box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.16);
+  }
+
+  html:not(.light) .documentCard {
+    background: linear-gradient(145deg, #101b2d, #0c1727);
+
+    border-color: #293b53;
+
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
+  }
+
+  html:not(.light) .documentCard h3 {
+    color: #ffffff;
+  }
+
+  html:not(.light) .documentCard p {
+    color: #aeb8c7;
+  }
+
+  html:not(.light) .documentCard strong {
+    color: #f5f7fa;
+  }
+
+  html:not(.light) .documentCard button {
+    background: #17263b;
+
+    color: #d6b457;
+
+    border-color: #30445d;
+  }
+
+  html:not(.light) .documentCard button:hover {
+    background: linear-gradient(135deg, #c49b35, #d6b457);
+
+    color: #071326;
+
+    border-color: #d6b457;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
   .searchBar input,
-  .searchBar select {
-    background-color: #0b1f3a;
-
-    color: #ffffff;
-
-    border-color: #344c69;
-  }
-
-  .searchBar input::placeholder {
-    color: #667085;
-  }
-
-  .searchBar input:focus,
-  .searchBar select:focus {
-    background-color: #0b1f3a;
-
-    border-color: var(--primary-blue, #155eef);
-
-    box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.18);
-  }
-
-  /* ---------- Search Button ---------- */
-
-  .searchBar button {
-    background-color: var(--primary-blue, #155eef);
-
-    color: #ffffff;
-  }
-
-  .searchBar button:hover {
-    background-color: #0f4dcc;
-  }
-
-  /* ---------- Document Cards ---------- */
-
-  .documentCard {
-    background: #132944;
-
-    border-color: #29415f;
-
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
-  }
-
-  .documentCard:hover {
-    border-color: #3a5575;
-
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
-  }
-
-  .documentCard h3 {
-    color: #ffffff;
-  }
-
-  .documentCard p {
-    color: #b8c2d1;
-  }
-
-  .documentCard strong {
-    color: #ffffff;
-  }
-
-  /* ---------- Document Button ---------- */
-
+  .searchBar select,
+  .searchBar button,
+  .documentCard,
   .documentCard button {
-    background-color: #1b3554;
-
-    color: #8fb4ff;
-
-    border-color: #344c69;
+    transition: none;
   }
 
+  .searchBar button:hover,
+  .documentCard:hover,
   .documentCard button:hover {
-    background-color: #203e63;
-
-    color: #ffffff;
-
-    border-color: #4a6590;
+    transform: none;
   }
 }

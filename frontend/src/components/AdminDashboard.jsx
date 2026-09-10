@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./AdminDashboard.module.css";
-import NotificationCenter from "./NotificationCenter"; // Imported your notification component
+import NotificationCenter from "./NotificationCenter";
 import NotificationBell from "./NotificationBell";
 const AdminDashboard = ({ onNavigateSettings }) => {
   const [users, setUsers] = useState([]);
@@ -9,7 +9,6 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const [traineeDepartments, setTraineeDepartments] = useState([]);
   const [staffDepartments, setStaffDepartments] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const [activeTab, setActiveTab] = useState("users");
 
   const currentTheme = localStorage.getItem("theme_preference") || "light";
@@ -56,9 +55,11 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   // PHONE NUMBER FORMATTER (International +251)
   const formatPhone = (phone) => {
     if (!phone) return "-";
+
     if (phone.startsWith("0")) {
       return "+251" + phone.slice(1);
     }
+
     return phone;
   };
 
@@ -81,6 +82,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
       .toLowerCase()
       .trim()
       .replace(/[^a-z]/g, "");
+
     const safeLast = newLastName
       .toLowerCase()
       .trim()
@@ -96,7 +98,8 @@ const AdminDashboard = ({ onNavigateSettings }) => {
         (r) => String(r.id) === String(newRoleId),
       );
 
-      // If the role exists and specifically contains "trainee", switch to the .edu domain
+      // If the role exists and specifically contains "trainee",
+      // switch to the .edu domain
       if (
         selectedRoleObj &&
         selectedRoleObj.name.toLowerCase().includes("trainee")
@@ -129,7 +132,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      if (res.ok) setUsers(await res.json());
+
+      if (res.ok) {
+        setUsers(await res.json());
+      }
     } catch (err) {
       console.error("Failed to fetch users");
     }
@@ -140,7 +146,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
       const res = await fetch(import.meta.env.VITE_API_URL + "/api/roles", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) setRoles(await res.json());
+
+      if (res.ok) {
+        setRoles(await res.json());
+      }
     } catch (err) {}
   };
 
@@ -152,7 +161,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      if (res.ok) setTraineeDepartments(await res.json());
+
+      if (res.ok) {
+        setTraineeDepartments(await res.json());
+      }
     } catch (err) {}
 
     try {
@@ -162,7 +174,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      if (res.ok) setStaffDepartments(await res.json());
+
+      if (res.ok) {
+        setStaffDepartments(await res.json());
+      }
     } catch (err) {}
   };
 
@@ -174,8 +189,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
+
       if (res.ok) {
         const data = await res.json();
+
         setLogs(data.logs || []);
         setTotalPages(data.totalPages || 1);
       }
@@ -187,14 +204,17 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setCreateError("");
+
     try {
       const selectedRole = roles.find(
         (r) => String(r.id) === String(newRoleId),
       );
+
       const isTraineeOrStaff =
         selectedRole &&
         (selectedRole.name.toLowerCase().includes("trainee") ||
           selectedRole.name.toLowerCase().includes("staff"));
+
       const deptIdToSend = isTraineeOrStaff ? newUserDepartment : null;
 
       const res = await fetch(
@@ -220,8 +240,10 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
       if (res.ok) {
         const newUser = await res.json();
+
         setUsers([newUser, ...users]);
         setIsCreateModalOpen(false);
+
         setNewFirstName("");
         setNewLastName("");
         setNewPhoneNumber("");
@@ -231,6 +253,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
         setNewUserStatus("active");
       } else {
         const errorData = await res.json().catch(() => ({}));
+
         setCreateError(errorData.error || "Failed to create user");
       }
     } catch (err) {
@@ -241,6 +264,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const handleBulkUpload = async (e) => {
     e.preventDefault();
     setBulkMessage("");
+
     if (!csvFile) {
       setBulkMessage("Error: Please select a CSV file first.");
       return;
@@ -254,16 +278,26 @@ const AdminDashboard = ({ onNavigateSettings }) => {
         import.meta.env.VITE_API_URL + "/api/admin/users/bulk",
         {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formData,
         },
       );
 
       const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         setBulkMessage(data.message || "Bulk import successful!");
+
         setCsvFile(null);
-        document.getElementById("csvFileInput").value = "";
+
+        const fileInput = document.getElementById("csvFileInput");
+
+        if (fileInput) {
+          fileInput.value = "";
+        }
+
         fetchUsers();
       } else {
         setBulkMessage(`Error: ${data.error || "Failed to import users"}`);
@@ -276,14 +310,16 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const handleBulkOffboard = async (e) => {
     e.preventDefault();
     setOffboardMessage("");
+
     if (!offboardDepartmentId) return;
 
     if (
       !window.confirm(
         "Are you sure you want to suspend ALL users in this training section?",
       )
-    )
+    ) {
       return;
+    }
 
     try {
       const res = await fetch(
@@ -294,12 +330,15 @@ const AdminDashboard = ({ onNavigateSettings }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ department_id: offboardDepartmentId }),
+          body: JSON.stringify({
+            department_id: offboardDepartmentId,
+          }),
         },
       );
 
       if (res.ok) {
         setOffboardMessage("Trainees successfully suspended!");
+
         setOffboardDepartmentId("");
         fetchUsers();
       } else {
@@ -313,7 +352,9 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const handleCreateDepartment = async (e) => {
     e.preventDefault();
     setCreateMessage("");
+
     if (!newDepartmentName) return;
+
     try {
       const res = await fetch(
         import.meta.env.VITE_API_URL + "/api/departments",
@@ -323,15 +364,21 @@ const AdminDashboard = ({ onNavigateSettings }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ name: newDepartmentName }),
+          body: JSON.stringify({
+            name: newDepartmentName,
+          }),
         },
       );
+
       if (res.ok) {
         await fetchDepartments();
+
         setNewDepartmentName("");
+
         setCreateMessage("Training section created successfully!");
       } else {
         const errorData = await res.json().catch(() => ({}));
+
         setCreateMessage(
           `Error: ${errorData.error || "Failed to create department"}`,
         );
@@ -344,7 +391,9 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const handleCreateStaffDepartment = async (e) => {
     e.preventDefault();
     setCreateStaffMessage("");
+
     if (!newStaffDepartmentName) return;
+
     try {
       const res = await fetch(
         import.meta.env.VITE_API_URL + "/api/staff-departments",
@@ -354,15 +403,21 @@ const AdminDashboard = ({ onNavigateSettings }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ name: newStaffDepartmentName }),
+          body: JSON.stringify({
+            name: newStaffDepartmentName,
+          }),
         },
       );
+
       if (res.ok) {
         await fetchDepartments();
+
         setNewStaffDepartmentName("");
+
         setCreateStaffMessage("Staff department created successfully!");
       } else {
         const errorData = await res.json().catch(() => ({}));
+
         setCreateStaffMessage(
           `Error: ${errorData.error || "Failed to create staff department."}`,
         );
@@ -388,17 +443,23 @@ const AdminDashboard = ({ onNavigateSettings }) => {
     try {
       const res = await fetch(import.meta.env.VITE_API_URL + endpoint, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (res.ok) {
         fetchDepartments();
         fetchUsers();
-        if (isStaff)
+
+        if (isStaff) {
           setCreateStaffMessage("Staff department deleted successfully.");
-        else setCreateMessage("Training section deleted successfully.");
+        } else {
+          setCreateMessage("Training section deleted successfully.");
+        }
       } else {
         const errorData = await res.json().catch(() => ({}));
+
         alert(`Failed to delete: ${errorData.error || "Server error"}`);
       }
     } catch (err) {
@@ -420,11 +481,13 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           body: JSON.stringify(editFormData),
         },
       );
+
       if (res.ok) {
         setEditingUserId(null);
         fetchUsers();
       } else {
         const errorData = await res.json().catch(() => ({}));
+
         alert(`Failed to update user: ${errorData.error || "Server error"}`);
       }
     } catch (err) {
@@ -434,12 +497,16 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
   const handleToggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === "active" ? "suspended" : "active";
+
     if (
       !window.confirm(
-        `Are you sure you want to ${newStatus === "suspended" ? "suspend" : "activate"} this user?`,
+        `Are you sure you want to ${
+          newStatus === "suspended" ? "suspend" : "activate"
+        } this user?`,
       )
-    )
+    ) {
       return;
+    }
 
     try {
       const res = await fetch(
@@ -450,9 +517,12 @@ const AdminDashboard = ({ onNavigateSettings }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify({
+            status: newStatus,
+          }),
         },
       );
+
       if (res.ok) {
         fetchUsers();
       } else {
@@ -468,17 +538,21 @@ const AdminDashboard = ({ onNavigateSettings }) => {
       !window.confirm(
         "Are you absolutely sure you want to delete this user? This action cannot be undone.",
       )
-    )
+    ) {
       return;
+    }
 
     try {
       const res = await fetch(
         import.meta.env.VITE_API_URL + `/api/admin/users/${id}`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
+
       if (res.ok) {
         fetchUsers();
       } else {
@@ -496,6 +570,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
   // Logic to determine which department list to show when creating
   const selectedRole = roles.find((r) => String(r.id) === String(newRoleId));
+
   const isTraineeOrStaff =
     selectedRole &&
     (selectedRole.name.toLowerCase().includes("trainee") ||
@@ -505,10 +580,12 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   const editSelectedRole = roles.find(
     (r) => String(r.id) === String(editFormData.role_id),
   );
+
   const editIsTraineeOrStaff =
     editSelectedRole &&
     (editSelectedRole.name.toLowerCase().includes("trainee") ||
       editSelectedRole.name.toLowerCase().includes("staff"));
+
   const editDepartmentsList = editSelectedRole?.name
     .toLowerCase()
     .includes("staff")
@@ -518,43 +595,59 @@ const AdminDashboard = ({ onNavigateSettings }) => {
   return (
     <div className={`${styles.adminLayout} ${isDark ? styles.darkTheme : ""}`}>
       <aside
-        className={`${styles.sidebar} ${isMobileMenuOpen ? styles.sidebarOpen : ""}`}
+        className={`${styles.sidebar} ${
+          isMobileMenuOpen ? styles.sidebarOpen : ""
+        }`}
       >
         <div className={styles.sidebarHeader}>
           <div className={styles.logoBox}>
             <span
               className={styles.brandSSGI}
-              style={{ fontSize: "20px", fontWeight: "800" }}
+              style={{
+                fontSize: "20px",
+                fontWeight: "800",
+              }}
             >
               SSGI
             </span>
+
             <span className={styles.brandSecure} style={{ fontSize: "20px" }}>
               {" "}
               SecureDoc
             </span>
           </div>
+
           <div className={styles.sidebarSubtitle}>ADMIN PORTAL</div>
         </div>
 
         <nav className={styles.sidebarNav}>
           <button
-            className={`${styles.navItem} ${activeTab === "users" ? styles.navItemActive : ""}`}
+            className={`${styles.navItem} ${
+              activeTab === "users" ? styles.navItemActive : ""
+            }`}
             onClick={() => setActiveTab("users")}
           >
             User Roles
           </button>
+
           <button
-            className={`${styles.navItem} ${activeTab === "bulk" ? styles.navItemActive : ""}`}
+            className={`${styles.navItem} ${
+              activeTab === "bulk" ? styles.navItemActive : ""
+            }`}
             onClick={() => setActiveTab("bulk")}
           >
             Bulk Operations
           </button>
+
           <button
-            className={`${styles.navItem} ${activeTab === "departments" ? styles.navItemActive : ""}`}
+            className={`${styles.navItem} ${
+              activeTab === "departments" ? styles.navItemActive : ""
+            }`}
             onClick={() => setActiveTab("departments")}
           >
             Departments
           </button>
+
           <div
             className={`${styles.navItem} ${
               activeTab === "notifications" ? styles.navItemActive : ""
@@ -585,8 +678,11 @@ const AdminDashboard = ({ onNavigateSettings }) => {
               Notifications
             </span>
           </div>
+
           <button
-            className={`${styles.navItem} ${activeTab === "logs" ? styles.navItemActive : ""}`}
+            className={`${styles.navItem} ${
+              activeTab === "logs" ? styles.navItemActive : ""
+            }`}
             onClick={() => setActiveTab("logs")}
           >
             System Logs
@@ -601,6 +697,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           >
             Settings
           </button>
+
           <button className={styles.signOutBtn} onClick={handleSignOut}>
             Sign Out
           </button>
@@ -612,10 +709,27 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
               <h3 className={styles.modalHeader}>Create New User</h3>
+
+              <p
+                style={{
+                  marginTop: "0",
+                  marginBottom: "12px",
+                  fontSize: "0.82rem",
+                  color: isDark ? "#d6b457" : "#8a6a16",
+                }}
+              >
+                <span className={styles.requiredMark}>*</span> Required fields
+              </p>
+
               {createError && <p className={styles.errorMsg}>{createError}</p>}
+
               <form onSubmit={handleCreateUser}>
                 <div
-                  style={{ display: "flex", gap: "10px", marginTop: "10px" }}
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    marginTop: "10px",
+                  }}
                 >
                   <div style={{ flex: 1 }}>
                     <label
@@ -625,8 +739,9 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                         fontWeight: "bold",
                       }}
                     >
-                      First Name
+                      First Name <span className={styles.requiredMark}>*</span>
                     </label>
+
                     <input
                       type="text"
                       value={newFirstName}
@@ -634,6 +749,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                       required
                     />
                   </div>
+
                   <div style={{ flex: 1 }}>
                     <label
                       style={{
@@ -642,8 +758,9 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                         fontWeight: "bold",
                       }}
                     >
-                      Last Name
+                      Last Name <span className={styles.requiredMark}>*</span>
                     </label>
+
                     <input
                       type="text"
                       value={newLastName}
@@ -662,15 +779,19 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                       marginTop: "10px",
                     }}
                   >
-                    Phone Number (Ethiopian)
+                    Phone Number (Ethiopian){" "}
+                    <span className={styles.requiredMark}>*</span>
                   </label>
+
                   <input
                     type="tel"
                     placeholder="e.g., 0911234567 or +251711234567"
                     value={newPhoneNumber}
                     onChange={(e) => {
                       let val = e.target.value.replace(/[^\d+]/g, "");
+
                       val = val.replace(/(?!^\+)\+/g, "");
+
                       setNewPhoneNumber(val);
                     }}
                     pattern="^(?:\+251|0)[79]\d{8}$"
@@ -679,6 +800,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                     required
                   />
                 </div>
+
                 <div>
                   <label
                     style={{
@@ -688,8 +810,9 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                       marginTop: "10px",
                     }}
                   >
-                    Email Address
+                    Email Address <span className={styles.requiredMark}>*</span>
                   </label>
+
                   <input
                     type="email"
                     value={newEmail}
@@ -697,6 +820,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                     required
                   />
                 </div>
+
                 <div>
                   <label
                     style={{
@@ -706,14 +830,16 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                       marginTop: "10px",
                     }}
                   >
-                    Role
+                    Role <span className={styles.requiredMark}>*</span>
                   </label>
+
                   <select
                     value={newRoleId}
                     onChange={(e) => setNewRoleId(e.target.value)}
                     required
                   >
                     <option value="">-- Select a Role --</option>
+
                     {roles.map((r) => (
                       <option key={r.id} value={r.id}>
                         {r.name}
@@ -721,6 +847,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                     ))}
                   </select>
                 </div>
+
                 {isTraineeOrStaff && (
                   <div>
                     <label
@@ -731,14 +858,16 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                         marginTop: "10px",
                       }}
                     >
-                      Department
+                      Department <span className={styles.requiredMark}>*</span>
                     </label>
+
                     <select
                       value={newUserDepartment}
                       onChange={(e) => setNewUserDepartment(e.target.value)}
                       required
                     >
                       <option value="">-- Select Department --</option>
+
                       {selectedRole &&
                       selectedRole.name.toLowerCase().includes("staff")
                         ? staffDepartments.map((d) => (
@@ -754,6 +883,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                     </select>
                   </div>
                 )}
+
                 <div
                   style={{
                     display: "flex",
@@ -769,6 +899,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   >
                     Cancel
                   </button>
+
                   <button type="submit" className={styles.primaryBtn}>
                     Create User
                   </button>
@@ -783,6 +914,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           <div className={styles.card}>
             <div className={styles.sectionHeader}>
               <h2>User Role Management</h2>
+
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className={styles.primaryBtn}
@@ -790,6 +922,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                 + Create New User
               </button>
             </div>
+
             <div className={styles.tableWrapper}>
               <table>
                 <thead>
@@ -803,6 +936,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                     <th>Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {users.map((u) => (
                     <tr key={u.id}>
@@ -835,6 +969,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                                 width: "100%",
                               }}
                             />
+
                             <input
                               type="text"
                               value={editFormData.last_name}
@@ -855,10 +990,21 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                           </div>
                         ) : (
                           <>
-                            <div style={{ fontWeight: "600" }}>
+                            <div
+                              style={{
+                                fontWeight: "600",
+                              }}
+                            >
                               {u.first_name} {u.last_name}
                             </div>
-                            <div style={{ fontSize: "0.85rem" }}>{u.email}</div>
+
+                            <div
+                              style={{
+                                fontSize: "0.85rem",
+                              }}
+                            >
+                              {u.email}
+                            </div>
                           </>
                         )}
                       </td>
@@ -915,6 +1061,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                               }}
                             >
                               <option value="">-- Select --</option>
+
                               {editDepartmentsList.map((d) => (
                                 <option key={d.id} value={d.id}>
                                   {d.name}
@@ -944,7 +1091,9 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                             value={editFormData.phone_number}
                             onChange={(e) => {
                               let val = e.target.value.replace(/[^\d+]/g, "");
+
                               val = val.replace(/(?!^\+)\+/g, "");
+
                               setEditFormData({
                                 ...editFormData,
                                 phone_number: val,
@@ -968,7 +1117,11 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
                       <td>
                         <span
-                          className={`${styles.badge} ${u.status === "suspended" ? styles.badgeSuspended : styles.badgeActive}`}
+                          className={`${styles.badge} ${
+                            u.status === "suspended"
+                              ? styles.badgeSuspended
+                              : styles.badgeActive
+                          }`}
                         >
                           {u.status}
                         </span>
@@ -976,7 +1129,12 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
                       {/* ACTIONS COLUMN */}
                       <td>
-                        <div style={{ display: "flex", gap: "8px" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "8px",
+                          }}
+                        >
                           {editingUserId === u.id ? (
                             <>
                               <button
@@ -989,6 +1147,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                               >
                                 Save
                               </button>
+
                               <button
                                 onClick={() => setEditingUserId(null)}
                                 className={styles.secondaryBtn}
@@ -1005,6 +1164,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                               <button
                                 onClick={() => {
                                   setEditingUserId(u.id);
+
                                   setEditFormData({
                                     first_name: u.first_name,
                                     last_name: u.last_name,
@@ -1021,6 +1181,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                               >
                                 Edit
                               </button>
+
                               <button
                                 onClick={() =>
                                   handleToggleStatus(u.id, u.status)
@@ -1033,6 +1194,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                               >
                                 {u.status === "active" ? "Suspend" : "Activate"}
                               </button>
+
                               <button
                                 onClick={() => handleDeleteUser(u.id)}
                                 className={styles.dangerBtn}
@@ -1058,18 +1220,28 @@ const AdminDashboard = ({ onNavigateSettings }) => {
         {/* TAB: BULK OPERATIONS */}
         {activeTab === "bulk" && (
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "30px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "30px",
+            }}
           >
             {/* BULK IMPORT CARD */}
             <div className={styles.card}>
               <h2>Bulk Import Trainees / Users</h2>
-              <p style={{ marginBottom: "20px" }}>
+
+              <p
+                style={{
+                  marginBottom: "20px",
+                }}
+              >
                 Upload a CSV file containing columns:{" "}
                 <code>
                   first_name, last_name, phone_number, email, role, department
                 </code>
                 .
               </p>
+
               <form
                 onSubmit={handleBulkUpload}
                 className={styles.responsiveForm}
@@ -1080,9 +1252,11 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   accept=".csv"
                   onChange={(e) => setCsvFile(e.target.files[0])}
                 />
+
                 <button type="submit" className={styles.primaryBtn}>
                   Upload CSV
                 </button>
+
                 {bulkMessage && (
                   <span
                     style={{
@@ -1101,10 +1275,16 @@ const AdminDashboard = ({ onNavigateSettings }) => {
             {/* BULK OFFBOARD CARD */}
             <div className={styles.card}>
               <h2>Bulk Offboard Trainees (Suspend Section)</h2>
-              <p style={{ marginBottom: "20px" }}>
+
+              <p
+                style={{
+                  marginBottom: "20px",
+                }}
+              >
                 Select a training section to instantly suspend all associated
                 accounts.
               </p>
+
               <form
                 onSubmit={handleBulkOffboard}
                 className={styles.responsiveForm}
@@ -1120,15 +1300,18 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   }}
                 >
                   <option value="">-- Select Training Section --</option>
+
                   {traineeDepartments.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name}
                     </option>
                   ))}
                 </select>
+
                 <button type="submit" className={styles.dangerBtn}>
                   Suspend Section
                 </button>
+
                 {offboardMessage && (
                   <span
                     style={{
@@ -1149,10 +1332,15 @@ const AdminDashboard = ({ onNavigateSettings }) => {
         {/* TAB: DEPARTMENTS */}
         {activeTab === "departments" && (
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "30px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "30px",
+            }}
           >
             <div className={styles.card}>
               <h2>Manage Training Sections (Trainees)</h2>
+
               {createMessage && (
                 <p
                   style={{
@@ -1166,10 +1354,13 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   {createMessage}
                 </p>
               )}
+
               <form
                 onSubmit={handleCreateDepartment}
                 className={styles.responsiveForm}
-                style={{ marginBottom: "20px" }}
+                style={{
+                  marginBottom: "20px",
+                }}
               >
                 <input
                   type="text"
@@ -1178,6 +1369,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   onChange={(e) => setNewDepartmentName(e.target.value)}
                   required
                 />
+
                 <button type="submit" className={styles.primaryBtn}>
                   Create Training Section
                 </button>
@@ -1192,16 +1384,28 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                       <th>Action</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {traineeDepartments.map((d) => (
                       <tr key={d.id}>
                         <td>{d.id}</td>
-                        <td style={{ fontWeight: "600" }}>{d.name}</td>
+
+                        <td
+                          style={{
+                            fontWeight: "600",
+                          }}
+                        >
+                          {d.name}
+                        </td>
+
                         <td>
                           <button
                             onClick={() => handleDeleteDepartment(d.id, false)}
                             className={styles.dangerBtn}
-                            style={{ padding: "6px 12px", fontSize: "0.85rem" }}
+                            style={{
+                              padding: "6px 12px",
+                              fontSize: "0.85rem",
+                            }}
                           >
                             Delete
                           </button>
@@ -1215,6 +1419,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
 
             <div className={styles.card}>
               <h2>Manage Staff Departments</h2>
+
               {createStaffMessage && (
                 <p
                   style={{
@@ -1228,10 +1433,13 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   {createStaffMessage}
                 </p>
               )}
+
               <form
                 onSubmit={handleCreateStaffDepartment}
                 className={styles.responsiveForm}
-                style={{ marginBottom: "20px" }}
+                style={{
+                  marginBottom: "20px",
+                }}
               >
                 <input
                   type="text"
@@ -1240,6 +1448,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                   onChange={(e) => setNewStaffDepartmentName(e.target.value)}
                   required
                 />
+
                 <button type="submit" className={styles.primaryBtn}>
                   Create Staff Department
                 </button>
@@ -1254,16 +1463,28 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                       <th>Action</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {staffDepartments.map((d) => (
                       <tr key={d.id}>
                         <td>{d.id}</td>
-                        <td style={{ fontWeight: "600" }}>{d.name}</td>
+
+                        <td
+                          style={{
+                            fontWeight: "600",
+                          }}
+                        >
+                          {d.name}
+                        </td>
+
                         <td>
                           <button
                             onClick={() => handleDeleteDepartment(d.id, true)}
                             className={styles.dangerBtn}
-                            style={{ padding: "6px 12px", fontSize: "0.85rem" }}
+                            style={{
+                              padding: "6px 12px",
+                              fontSize: "0.85rem",
+                            }}
                           >
                             Delete
                           </button>
@@ -1291,6 +1512,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
         {activeTab === "logs" && (
           <div className={styles.card}>
             <h2>System Audit Logs</h2>
+
             <div className={styles.tableWrapper}>
               <table>
                 <thead>
@@ -1301,6 +1523,7 @@ const AdminDashboard = ({ onNavigateSettings }) => {
                     <th>Timestamp</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {logs.map((log) => (
                     <tr key={log.id}>
@@ -1319,5 +1542,4 @@ const AdminDashboard = ({ onNavigateSettings }) => {
     </div>
   );
 };
-
 export default AdminDashboard;

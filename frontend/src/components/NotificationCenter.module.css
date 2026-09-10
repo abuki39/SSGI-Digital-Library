@@ -1,16 +1,49 @@
+/* =========================================================
+   SSGI SecureDoc — Notification Center
+   Unified SSGI Space / Geospatial Design System
+   ========================================================= */
+
 .notificationsContainer {
-  --primary-blue: #1d4ed8;
-  --primary-blue-dark: #1e3a8a;
-  --primary-blue-light: #eff6ff;
-  --border-color: #dbe4f0;
-  --text-primary: #1f2937;
+  --primary: #071326;
+  --primary-light: #0d213d;
+
+  --action: #c49b35;
+  --action-light: #f4d98b;
+  --action-hover: #d9b95f;
+
+  --border-color: #e4e7ec;
+  --text-primary: #071326;
   --text-secondary: #667085;
+
   --card-background: #ffffff;
+  --surface-soft: #f8fafc;
+  --page-background: #f4f6f9;
+
+  --danger: #d92d20;
+  --danger-soft: #fff6f5;
+
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.8fr);
+
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(320px, 0.8fr);
+
   gap: 24px;
+
   width: 100%;
+
   padding: 24px;
+
+  background:
+    radial-gradient(
+      circle at 92% 5%,
+      rgba(196, 155, 53, 0.045),
+      transparent 25%
+    ),
+    var(--page-background);
+
+  color: var(--text-primary);
+
   box-sizing: border-box;
 }
 
@@ -24,54 +57,144 @@
 
 .notificationListHeader {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 16px;
+
   margin-bottom: 20px;
 }
 
 .notificationListHeader h2 {
+  position: relative;
+
   margin: 0;
-  color: #0f172a;
+
+  padding-bottom: 8px;
+
+  color: var(--primary);
+
   font-size: 22px;
-  font-weight: 700;
+
+  font-weight: 850;
+
+  line-height: 1.3;
+
+  letter-spacing: -0.02em;
+}
+
+.notificationListHeader h2::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  width: 42px;
+  height: 3px;
+
+  background: linear-gradient(90deg, #c49b35, #f4d98b);
+
+  border-radius: 999px;
 }
 
 .notificationActions {
   display: flex;
+
   align-items: center;
+
   gap: 8px;
 }
 
+/* =========================================================
+   CLEAR ALL BUTTON
+   ========================================================= */
+
 .clearAllBtn {
-  border: 1px solid #f0b7b7;
-  background: #fff5f5;
-  color: #b42318;
-  border-radius: 7px;
-  padding: 8px 13px;
+  border: 1px solid #fecdca;
+
+  background: linear-gradient(135deg, #fff6f5, #fffafa);
+
+  color: var(--danger);
+
+  border-radius: 8px;
+
+  padding: 9px 14px;
+
+  font-family: inherit;
+
   font-size: 12px;
-  font-weight: 600;
+
+  font-weight: 750;
+
   cursor: pointer;
+
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
 .clearAllBtn:hover {
-  background: #feecec;
-  border-color: #e99a9a;
+  background: #fef0ef;
+
+  border-color: #fda29b;
+
+  box-shadow: 0 5px 14px rgba(240, 68, 56, 0.1);
+
   transform: translateY(-1px);
 }
 
+.clearAllBtn:focus-visible {
+  outline: none;
+
+  box-shadow: 0 0 0 3px rgba(240, 68, 56, 0.13);
+}
+
+/* =========================================================
+   EMPTY MESSAGE
+   ========================================================= */
+
 .emptyMessage {
+  position: relative;
+
   margin: 20px 0;
-  padding: 28px;
+
+  padding: 34px 28px;
+
   text-align: center;
+
   color: var(--text-secondary);
-  background: #f8fafc;
+
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+
   border: 1px dashed #d0d5dd;
-  border-radius: 10px;
+
+  border-radius: 12px;
+
+  box-shadow: 0 3px 10px rgba(16, 24, 40, 0.035);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.emptyMessage::before {
+  content: "";
+
+  display: block;
+
+  width: 42px;
+  height: 3px;
+
+  margin: 0 auto 15px;
+
+  background: linear-gradient(90deg, #c49b35, #f4d98b);
+
+  border-radius: 999px;
 }
 
 /* =========================================================
@@ -80,57 +203,113 @@
 
 .notificationCard {
   position: relative;
+
   margin-bottom: 16px;
-  padding: 16px 150px 16px 18px;
-  border-radius: 8px;
-  border-top: 1px solid #e4edff;
-  border-right: 1px solid #e4edff;
-  border-bottom: 1px solid #e4edff;
-  border-left: 4px solid var(--primary-blue);
-  background-color: #f5f9ff;
+
+  padding: 18px 150px 18px 20px;
+
+  border-radius: 12px;
+
+  border-top: 1px solid #e4e7ec;
+  border-right: 1px solid #e4e7ec;
+  border-bottom: 1px solid #e4e7ec;
+
+  border-left: 4px solid var(--action);
+
+  background: linear-gradient(145deg, #ffffff 0%, #fbfcfd 100%);
+
   box-sizing: border-box;
+
+  box-shadow: 0 3px 8px rgba(16, 24, 40, 0.035);
+
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    opacity 0.2s ease;
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.notificationCard::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background: linear-gradient(90deg, #c49b35, #f4d98b, #c49b35);
+
+  opacity: 0;
+
+  transition: opacity 0.25s ease;
+
+  pointer-events: none;
 }
 
 .notificationCard:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+  transform: translateY(-3px);
+
+  border-color: rgba(196, 155, 53, 0.3);
+
+  box-shadow: 0 12px 26px rgba(16, 24, 40, 0.08);
 }
 
-/* Unread notification */
-
-.notificationCardUnread {
-  border-left-color: var(--primary-blue);
-  background-color: #f5f9ff;
+.notificationCard:hover::before {
   opacity: 1;
 }
 
-/* Read notification */
+/* =========================================================
+   UNREAD NOTIFICATION
+   ========================================================= */
+
+.notificationCardUnread {
+  border-left-color: var(--action);
+
+  background: linear-gradient(145deg, #fffdf8 0%, #ffffff 100%);
+
+  opacity: 1;
+}
+
+/* =========================================================
+   READ NOTIFICATION
+   ========================================================= */
 
 .notificationCardRead {
   border-left-color: #98a2b3;
+
   border-top-color: #e4e7ec;
   border-right-color: #e4e7ec;
   border-bottom-color: #e4e7ec;
-  background-color: #f8f9fb;
-  opacity: 0.82;
+
+  background: linear-gradient(145deg, #f8fafc, #f4f6f8);
+
+  opacity: 0.78;
 }
 
 .notificationCardRead:hover {
-  opacity: 0.95;
+  opacity: 0.96;
 }
+
+/* =========================================================
+   NOTIFICATION TEXT
+   ========================================================= */
 
 .notificationCard h4 {
   margin: 0 0 8px;
-  color: #12315f;
+
+  color: var(--primary);
+
   font-size: 16px;
-  font-weight: 700;
-  line-height: 1.4;
+
+  font-weight: 800;
+
+  line-height: 1.45;
+
+  letter-spacing: -0.01em;
 }
 
 .notificationCardRead h4 {
@@ -139,9 +318,12 @@
 
 .notificationCard p {
   margin: 0 0 12px;
+
   color: var(--text-primary);
+
   font-size: 14px;
-  line-height: 1.6;
+
+  line-height: 1.65;
 }
 
 .notificationCardRead p {
@@ -150,13 +332,18 @@
 
 .notificationCard small {
   display: block;
+
   color: var(--text-secondary);
+
   font-size: 11px;
+
   line-height: 1.5;
 }
 
 .notificationCard small strong {
   color: #475467;
+
+  font-weight: 700;
 }
 
 /* =========================================================
@@ -165,82 +352,138 @@
 
 .notificationCardActions {
   position: absolute;
+
   top: 12px;
   right: 12px;
+
   display: flex;
+
   align-items: center;
+
   gap: 6px;
+
   z-index: 2;
 }
 
+/* =========================================================
+   MARK AS READ BUTTON
+   ========================================================= */
+
 .markNotificationReadBtn {
   min-width: 92px;
-  padding: 7px 9px;
-  border: 1px solid #b7c9e8;
-  border-radius: 6px;
-  background: #ffffff;
-  color: #1d4ed8;
+
+  padding: 8px 10px;
+
+  border: 1px solid rgba(196, 155, 53, 0.35);
+
+  border-radius: 7px;
+
+  background: linear-gradient(135deg, #fffdf8, #ffffff);
+
+  color: #8b6b1f;
+
+  font-family: inherit;
+
   font-size: 11px;
-  font-weight: 700;
+
+  font-weight: 800;
+
   line-height: 1.2;
+
   cursor: pointer;
+
   white-space: nowrap;
+
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
 .markNotificationReadBtn:hover:not(:disabled) {
-  background: #eff6ff;
-  border-color: #7ea4df;
+  background: linear-gradient(135deg, #fff8df, #fffdf5);
+
+  border-color: #c49b35;
+
+  color: #6f5317;
+
+  box-shadow: 0 5px 12px rgba(196, 155, 53, 0.12);
+
   transform: translateY(-1px);
 }
 
 .markNotificationReadBtn:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
+  outline: none;
+
+  box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.14);
 }
 
 .markNotificationReadBtnDone {
-  border-color: #b8c1cc;
-  background: #eef1f4;
+  border-color: #d0d5dd;
+
+  background: #f2f4f7;
+
   color: #667085;
+
   cursor: default;
 }
 
 .markNotificationReadBtnDone:hover {
   transform: none;
+
+  box-shadow: none;
 }
+
+/* =========================================================
+   REMOVE NOTIFICATION BUTTON
+   ========================================================= */
 
 .removeNotificationBtn {
   width: 32px;
   height: 32px;
+
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
-  border: 1px solid #f1c1c1;
-  border-radius: 6px;
-  background: #ffffff;
-  color: #b42318;
+
+  border: 1px solid #fecdca;
+
+  border-radius: 7px;
+
+  background: #fffafa;
+
+  color: var(--danger);
+
+  font-family: inherit;
+
   font-size: 14px;
+
   cursor: pointer;
+
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
 .removeNotificationBtn:hover {
   background: #fff1f1;
-  border-color: #e79a9a;
+
+  border-color: #fda29b;
+
+  box-shadow: 0 4px 10px rgba(240, 68, 56, 0.1);
+
   transform: translateY(-1px);
 }
 
 .removeNotificationBtn:focus-visible {
-  outline: 2px solid #ef4444;
-  outline-offset: 2px;
+  outline: none;
+
+  box-shadow: 0 0 0 3px rgba(240, 68, 56, 0.13);
 }
 
 /* =========================================================
@@ -248,28 +491,70 @@
    ========================================================= */
 
 .publishForm {
+  position: relative;
+
   min-width: 0;
-  padding: 22px;
-  background: #ffffff;
+
+  padding: 24px;
+
+  background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 3px 8px rgba(16, 24, 40, 0.04),
+    0 10px 25px rgba(16, 24, 40, 0.035);
+
   box-sizing: border-box;
+
+  overflow: visible;
+}
+
+.publishForm::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 24px;
+
+  width: 48px;
+  height: 3px;
+
+  background: linear-gradient(90deg, #c49b35, #f4d98b);
+
+  border-radius: 0 0 999px 999px;
 }
 
 .publishForm h2 {
   margin: 0 0 8px;
-  color: #0f172a;
+
+  color: var(--primary);
+
   font-size: 21px;
-  font-weight: 700;
+
+  font-weight: 850;
+
+  line-height: 1.35;
+
+  letter-spacing: -0.015em;
 }
 
 .publishDescription {
   margin: 0 0 20px;
-  color: #667085;
+
+  color: var(--text-secondary);
+
   font-size: 13px;
-  line-height: 1.5;
+
+  line-height: 1.6;
 }
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
 
 .formGroup {
   margin-bottom: 18px;
@@ -277,46 +562,71 @@
 
 .formGroup label {
   display: block;
+
   margin-bottom: 7px;
+
   color: #344054;
+
   font-size: 13px;
-  font-weight: 600;
-}
 
-/* Required field asterisk */
-
-.requiredMark {
-  color: #dc2626;
   font-weight: 700;
 }
+
+/* =========================================================
+   REQUIRED FIELD
+   ========================================================= */
+
+.requiredMark {
+  color: var(--danger);
+
+  font-weight: 800;
+}
+
+/* =========================================================
+   FORM CONTROLS
+   ========================================================= */
 
 .formGroup input,
 .formGroup textarea,
 .formGroup select {
   width: 100%;
+
   box-sizing: border-box;
+
   border: 1px solid #d0d5dd;
-  border-radius: 7px;
-  background: #ffffff;
+
+  border-radius: 8px;
+
+  background: linear-gradient(145deg, #ffffff, #fafbfc);
+
   color: #101828;
+
   font-family: inherit;
+
   font-size: 13px;
+
   outline: none;
+
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
 }
 
 .formGroup input,
 .formGroup select {
   height: 42px;
+
   padding: 0 12px;
 }
 
 .formGroup textarea {
   min-height: 100px;
+
   padding: 11px 12px;
+
   resize: vertical;
+
   line-height: 1.5;
 }
 
@@ -325,11 +635,20 @@
   color: #98a2b3;
 }
 
+.formGroup input:hover,
+.formGroup textarea:hover,
+.formGroup select:hover {
+  border-color: rgba(196, 155, 53, 0.4);
+}
+
 .formGroup input:focus,
 .formGroup textarea:focus,
 .formGroup select:focus {
-  border-color: #6995dc;
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+  border-color: #c49b35;
+
+  background: #ffffff;
+
+  box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.11);
 }
 
 /* =========================================================
@@ -338,9 +657,12 @@
 
 .departmentHeader {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 10px;
+
   margin-bottom: 7px;
 }
 
@@ -350,142 +672,214 @@
 
 .departmentSelectionCount {
   max-width: 60%;
+
   overflow: hidden;
+
   color: #667085;
+
   font-size: 11px;
-  font-weight: 600;
+
+  font-weight: 650;
+
   text-overflow: ellipsis;
+
   white-space: nowrap;
 }
 
 .departmentDropdown {
   position: relative;
+
   width: 100%;
 }
 
 .departmentDropdownButton {
   width: 100%;
+
   min-height: 42px;
+
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 12px;
+
   padding: 9px 12px;
+
   border: 1px solid #d0d5dd;
-  border-radius: 7px;
-  background: #ffffff;
+
+  border-radius: 8px;
+
+  background: linear-gradient(145deg, #ffffff, #fafbfc);
+
   color: #101828;
+
   font-family: inherit;
+
   font-size: 13px;
+
   text-align: left;
+
   cursor: pointer;
+
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
 }
 
 .departmentDropdownButton:hover:not(:disabled),
 .departmentDropdownButtonOpen {
-  border-color: #6995dc;
+  border-color: #c49b35;
 }
 
 .departmentDropdownButtonOpen {
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.08);
+  background: #ffffff;
+
+  box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.1);
 }
 
 .departmentDropdownButton:disabled {
   cursor: not-allowed;
+
   opacity: 0.65;
 }
 
 .departmentDropdownText {
   min-width: 0;
+
   overflow: hidden;
+
   text-overflow: ellipsis;
+
   white-space: nowrap;
 }
 
 .departmentDropdownArrow {
   flex-shrink: 0;
+
   color: #667085;
+
   font-size: 10px;
-  transition: transform 0.2s ease;
+
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease;
 }
 
 .departmentDropdownArrowOpen {
+  color: #8b6b1f;
+
   transform: rotate(180deg);
 }
 
 .departmentDropdownMenu {
   position: absolute;
+
   top: calc(100% + 6px);
+
   left: 0;
   right: 0;
+
   z-index: 50;
+
   max-height: 240px;
+
   overflow-y: auto;
+
   padding: 6px;
+
   border: 1px solid #d0d5dd;
-  border-radius: 8px;
+
+  border-radius: 9px;
+
   background: #ffffff;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+
+  box-shadow: 0 14px 30px rgba(16, 24, 40, 0.12);
+
+  box-sizing: border-box;
 }
 
 .departmentDropdownOption {
   position: relative;
+
   display: flex;
+
   align-items: center;
+
   gap: 9px;
+
   min-height: 38px;
+
   padding: 7px 10px;
-  border-radius: 6px;
+
+  border-radius: 7px;
+
   color: #344054;
+
   font-size: 12px;
+
   cursor: pointer;
+
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
 }
 
 .departmentDropdownOption:hover {
-  background: #f2f4f7;
+  background: linear-gradient(135deg, #fffdf8, #f8fafc);
+
+  color: #8b6b1f;
 }
 
 .departmentDropdownOptionSelected {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: rgba(196, 155, 53, 0.09);
+
+  color: #8b6b1f;
 }
 
 .departmentDropdownOption input {
   width: 15px;
   height: 15px;
+
   margin: 0;
+
   cursor: pointer;
-  accent-color: #1d4ed8;
+
+  accent-color: #c49b35;
 }
 
 .departmentDropdownOption span:nth-child(2) {
   min-width: 0;
+
   flex: 1;
 }
 
 .departmentCheckmark {
   flex-shrink: 0;
-  color: #1d4ed8;
+
+  color: #c49b35;
+
   font-size: 13px;
-  font-weight: 700;
+
+  font-weight: 800;
 }
 
 .departmentDropdownDivider {
   height: 1px;
+
   margin: 5px 4px;
+
   background: #eaecf0;
 }
 
 .departmentDropdownState {
   padding: 14px 10px;
+
   color: #667085;
+
   font-size: 12px;
+
   text-align: center;
 }
 
@@ -495,28 +889,61 @@
 
 .publishBtn {
   width: 100%;
+
   min-height: 43px;
-  border: 0;
-  border-radius: 7px;
-  background: #1d4ed8;
-  color: #ffffff;
+
+  border: 1px solid rgba(196, 155, 53, 0.55);
+
+  border-radius: 8px;
+
+  background: linear-gradient(135deg, #c49b35 0%, #f4d98b 52%, #c49b35 100%);
+
+  color: #071326;
+
+  font-family: inherit;
+
   font-size: 13px;
-  font-weight: 700;
+
+  font-weight: 850;
+
   cursor: pointer;
+
   transition:
-    background-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .publishBtn:hover:not(:disabled) {
-  background: #1e40af;
-  transform: translateY(-1px);
-  box-shadow: 0 5px 12px rgba(29, 78, 216, 0.2);
+  background: linear-gradient(135deg, #f4d98b 0%, #ffe7a8 50%, #d9b95f 100%);
+
+  border-color: #c49b35;
+
+  box-shadow: 0 7px 18px rgba(196, 155, 53, 0.18);
+
+  transform: translateY(-2px);
+}
+
+.publishBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.publishBtn:focus-visible {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(196, 155, 53, 0.14),
+    0 6px 15px rgba(196, 155, 53, 0.12);
 }
 
 .publishBtn:disabled {
-  background: #aab8d4;
+  background: #d0d5dd;
+
+  border-color: #d0d5dd;
+
+  color: #667085;
+
   cursor: not-allowed;
 }
 
@@ -526,50 +953,87 @@
 
 .pagination {
   display: flex;
+
   align-items: center;
+
   justify-content: center;
+
   flex-wrap: wrap;
+
   gap: 6px;
+
   margin-top: 20px;
 }
 
 .paginationBtn {
   min-width: 34px;
+
   height: 34px;
+
   padding: 0 9px;
+
   border: 1px solid #d0d5dd;
-  border-radius: 6px;
+
+  border-radius: 7px;
+
   background: #ffffff;
+
   color: #344054;
+
+  font-family: inherit;
+
   font-size: 12px;
-  font-weight: 600;
+
+  font-weight: 700;
+
   cursor: pointer;
+
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
 }
 
 .paginationBtn:hover:not(:disabled) {
-  background: #f2f4f7;
-  border-color: #b8c0cc;
+  background: linear-gradient(135deg, #fffdf8, #f8fafc);
+
+  border-color: rgba(196, 155, 53, 0.45);
+
+  color: #8b6b1f;
+
+  transform: translateY(-1px);
+}
+
+.paginationBtn:focus-visible {
+  outline: none;
+
+  box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.12);
 }
 
 .paginationBtn:disabled {
   cursor: not-allowed;
+
   opacity: 0.5;
 }
 
 .paginationActive {
-  border-color: #1d4ed8;
-  background: #1d4ed8;
-  color: #ffffff;
+  border-color: #c49b35;
+
+  background: linear-gradient(135deg, #c49b35, #f4d98b);
+
+  color: #071326;
+
+  box-shadow: 0 4px 10px rgba(196, 155, 53, 0.12);
 }
 
 .paginationInfo {
   margin: 10px 0 0;
+
   color: #667085;
+
   font-size: 11px;
+
   text-align: center;
 }
 
@@ -579,39 +1043,87 @@
 
 @media (prefers-color-scheme: dark) {
   .notificationsContainer {
-    --border-color: #344054;
-    --text-primary: #e5e7eb;
+    --border-color: #24364d;
+
+    --text-primary: #f2f4f7;
+
     --text-secondary: #98a2b3;
+
+    --card-background: #0b1626;
+
+    --surface-soft: #0f1d2f;
+
+    --page-background: #050b16;
+
+    background:
+      radial-gradient(
+        circle at 92% 5%,
+        rgba(244, 217, 139, 0.035),
+        transparent 25%
+      ),
+      #050b16;
   }
 
-  .notificationListHeader h2,
-  .publishForm h2 {
-    color: #ffffff !important;
+  /* =======================================================
+     DARK — LIST HEADER
+     ======================================================= */
+
+  .notificationListHeader h2 {
+    color: #f4d98b;
   }
+
+  /* =======================================================
+     DARK — CLEAR ALL
+     ======================================================= */
 
   .clearAllBtn {
-    border-color: #7f3d3d;
-    background: #321b1b;
+    border-color: #6b3a3a;
+
+    background: #251b1b;
+
     color: #fca5a5;
   }
 
   .clearAllBtn:hover {
-    background: #432020;
-    border-color: #9f4d4d;
+    background: #352020;
+
+    border-color: #8a4a4a;
   }
 
+  /* =======================================================
+     DARK — EMPTY
+     ======================================================= */
+
   .emptyMessage {
-    background: #182230;
-    border-color: #344054;
+    background: linear-gradient(145deg, #0b1626, #0f1d2f);
+
+    border-color: #344a63;
+
     color: #98a2b3;
   }
 
+  /* =======================================================
+     DARK — NOTIFICATION CARDS
+     ======================================================= */
+
+  .notificationCard {
+    border-top-color: #24364d;
+    border-right-color: #24364d;
+    border-bottom-color: #24364d;
+
+    background: linear-gradient(145deg, #0b1626, #0f1d2f);
+  }
+
+  .notificationCard:hover {
+    border-color: rgba(244, 217, 139, 0.28);
+
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
+  }
+
   .notificationCardUnread {
-    border-top-color: #253a5f;
-    border-right-color: #253a5f;
-    border-bottom-color: #253a5f;
-    border-left-color: #4d8df7;
-    background-color: #17243a;
+    border-left-color: #d4a848;
+
+    background: linear-gradient(145deg, #111d2d, #0b1626);
   }
 
   .notificationCardRead {
@@ -619,19 +1131,20 @@
     border-right-color: #344054;
     border-bottom-color: #344054;
     border-left-color: #667085;
-    background-color: #1b222c;
+
+    background: linear-gradient(145deg, #101923, #0c141e);
   }
 
   .notificationCard h4 {
-    color: #dbeafe !important;
+    color: #f4d98b;
   }
 
   .notificationCardRead h4 {
-    color: #b8c0cc !important;
+    color: #b8c0cc;
   }
 
   .notificationCard p {
-    color: #e5e7eb;
+    color: #e4e7ec;
   }
 
   .notificationCardRead p {
@@ -643,37 +1156,66 @@
     color: #98a2b3;
   }
 
+  /* =======================================================
+     DARK — MARK READ
+     ======================================================= */
+
   .markNotificationReadBtn {
-    border-color: #3f5f91;
-    background: #1f2937;
-    color: #93c5fd;
+    border-color: rgba(244, 217, 139, 0.28);
+
+    background: #142236;
+
+    color: #f4d98b;
   }
 
   .markNotificationReadBtn:hover:not(:disabled) {
-    background: #243552;
-    border-color: #5c80b8;
+    background: #1a2c43;
+
+    border-color: rgba(244, 217, 139, 0.45);
+
+    color: #ffe7a8;
   }
 
   .markNotificationReadBtnDone {
     border-color: #475467;
+
     background: #252d38;
+
     color: #98a2b3;
   }
 
+  /* =======================================================
+     DARK — REMOVE
+     ======================================================= */
+
   .removeNotificationBtn {
     border-color: #6b3a3a;
+
     background: #251b1b;
+
     color: #fca5a5;
   }
 
   .removeNotificationBtn:hover {
     background: #352020;
+
     border-color: #8a4a4a;
   }
 
+  /* =======================================================
+     DARK — PUBLISH FORM
+     ======================================================= */
+
   .publishForm {
-    border-color: #344054;
-    background: #182230;
+    border-color: #24364d;
+
+    background: linear-gradient(145deg, #0b1626, #0f1d2f);
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .publishForm h2 {
+    color: #f4d98b;
   }
 
   .publishDescription {
@@ -692,9 +1234,11 @@
   .formGroup textarea,
   .formGroup select,
   .departmentDropdownButton {
-    border-color: #475467;
-    background: #111827;
-    color: #f9fafb;
+    border-color: #344a63;
+
+    background: #07111f;
+
+    color: #f2f4f7;
   }
 
   .formGroup input::placeholder,
@@ -702,21 +1246,42 @@
     color: #667085;
   }
 
+  .formGroup input:hover,
+  .formGroup textarea:hover,
+  .formGroup select:hover {
+    border-color: rgba(244, 217, 139, 0.35);
+  }
+
   .formGroup input:focus,
   .formGroup textarea:focus,
   .formGroup select:focus,
   .departmentDropdownButtonOpen {
-    border-color: #5b8fe8;
+    border-color: #d4a848;
+
+    background: #07111f;
+
+    box-shadow: 0 0 0 3px rgba(212, 168, 72, 0.11);
   }
+
+  /* =======================================================
+     DARK — DEPARTMENT DROPDOWN
+     ======================================================= */
 
   .departmentSelectionCount,
   .departmentDropdownArrow {
     color: #98a2b3;
   }
 
+  .departmentDropdownArrowOpen {
+    color: #f4d98b;
+  }
+
   .departmentDropdownMenu {
-    border-color: #475467;
-    background: #111827;
+    border-color: #344a63;
+
+    background: #07111f;
+
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   }
 
   .departmentDropdownOption {
@@ -724,12 +1289,15 @@
   }
 
   .departmentDropdownOption:hover {
-    background: #1f2937;
+    background: #142236;
+
+    color: #f4d98b;
   }
 
   .departmentDropdownOptionSelected {
-    background: #172b4d;
-    color: #93c5fd;
+    background: rgba(244, 217, 139, 0.08);
+
+    color: #f4d98b;
   }
 
   .departmentDropdownDivider {
@@ -740,20 +1308,32 @@
     color: #98a2b3;
   }
 
+  /* =======================================================
+     DARK — PAGINATION
+     ======================================================= */
+
   .paginationBtn {
-    border-color: #475467;
-    background: #182230;
+    border-color: #344a63;
+
+    background: #0b1626;
+
     color: #d0d5dd;
   }
 
   .paginationBtn:hover:not(:disabled) {
-    background: #1f2937;
+    background: #142236;
+
+    border-color: rgba(244, 217, 139, 0.3);
+
+    color: #f4d98b;
   }
 
   .paginationActive {
-    border-color: #2563eb;
-    background: #2563eb;
-    color: #ffffff;
+    border-color: #c49b35;
+
+    background: linear-gradient(135deg, #c49b35, #f4d98b);
+
+    color: #071326;
   }
 
   .paginationInfo {
@@ -762,7 +1342,7 @@
 }
 
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — LARGE / TABLET
    ========================================================= */
 
 @media (max-width: 1100px) {
@@ -775,28 +1355,36 @@
   }
 }
 
+/* =========================================================
+   RESPONSIVE — TABLET / MOBILE
+   ========================================================= */
+
 @media (max-width: 700px) {
   .notificationsContainer {
-    padding: 16px;
+    padding: 18px;
+
     gap: 18px;
   }
 
   .notificationListHeader {
     align-items: flex-start;
+
     flex-direction: column;
   }
 
   .notificationActions {
     width: 100%;
+
     justify-content: flex-end;
   }
 
   .notificationCard {
-    padding: 58px 14px 15px;
+    padding: 60px 15px 16px;
   }
 
   .notificationCardActions {
     top: 10px;
+
     right: 10px;
   }
 
@@ -813,13 +1401,21 @@
   }
 
   .publishForm {
-    padding: 18px;
+    padding: 20px;
   }
 }
+
+/* =========================================================
+   RESPONSIVE — SMALL MOBILE
+   ========================================================= */
 
 @media (max-width: 480px) {
   .notificationsContainer {
     padding: 12px;
+  }
+
+  .notificationListHeader h2 {
+    font-size: 20px;
   }
 
   .notificationActions {
@@ -831,17 +1427,21 @@
   }
 
   .notificationCard {
-    padding: 60px 12px 14px;
+    padding: 62px 13px 15px;
+
+    border-radius: 10px;
   }
 
   .notificationCardActions {
     left: 10px;
     right: 10px;
+
     justify-content: space-between;
   }
 
   .markNotificationReadBtn {
     flex: 1;
+
     min-width: 0;
   }
 
@@ -851,11 +1451,16 @@
 
   .departmentHeader {
     align-items: flex-start;
+
     flex-direction: column;
   }
 
   .departmentSelectionCount {
     max-width: 100%;
+  }
+
+  .publishForm {
+    padding: 17px;
   }
 
   .pagination {
@@ -864,8 +1469,29 @@
 
   .paginationBtn {
     min-width: 31px;
+
     height: 32px;
+
     padding: 0 7px;
+
     font-size: 11px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .notificationsContainer *,
+  .notificationsContainer *::before,
+  .notificationsContainer *::after {
+    scroll-behavior: auto;
+
+    transition-duration: 0.01ms !important;
+
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
   }
 }

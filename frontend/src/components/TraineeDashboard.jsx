@@ -3,6 +3,7 @@ import styles from "./TraineeDashboard.module.css";
 import SafeDocumentViewer from "./SafeDocumentViewer";
 import NotificationCenter from "./NotificationCenter";
 import NotificationBell from "./NotificationBell";
+
 const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
   const [documents, setDocuments] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,6 +32,7 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
           },
         },
       );
+
       if (res.ok) {
         setDocuments(await res.json());
       }
@@ -48,9 +50,11 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
     const matchesSearch =
       doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.author.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesCategory = filterCategory
       ? doc.category === filterCategory
       : true;
+
     return matchesSearch && matchesCategory;
   });
 
@@ -86,8 +90,10 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
               d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
             />
           </svg>
+
           <div className={styles.brandText}>
             <span className={styles.brandSSGI}>SSGI</span>
+
             <span
               className={styles.brandSecure}
               style={{ color: isDark ? "#f7fafc" : "#4b5563" }}
@@ -97,6 +103,7 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
             </span>
           </div>
         </div>
+
         <div
           className={styles.headerActions}
           style={{
@@ -146,13 +153,18 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
               {activeView === "library" ? "Notifications" : "Training Library"}
             </span>
           </div>
+
           <button
             className={styles.signOutBtn}
-            style={{ marginBottom: "10px", backgroundColor: "#4b5563" }}
+            style={{
+              marginBottom: "10px",
+              backgroundColor: "#4b5563",
+            }}
             onClick={onNavigateSettings}
           >
             Settings
           </button>
+
           <button
             className={styles.signOutBtn}
             onClick={handleSignOut}
@@ -190,11 +202,13 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
               }}
             >
               <h2>Welcome to the SSGI Training Library</h2>
+
               <p>
                 This secure environment contains all the essential onboarding
                 manuals, research publications, and standard operating
                 procedures required for your specific training section.
               </p>
+
               <div className={styles.readOnlyNotice}>
                 <svg
                   fill="none"
@@ -222,18 +236,23 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
+
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
                 >
                   <option value="">All Categories</option>
+
                   <option value="Research Publications">
                     Research Publications
                   </option>
+
                   <option value="Geospatial Training Materials">
                     Geospatial Training Materials
                   </option>
+
                   <option value="Reports">Reports</option>
+
                   <option value="Academic Documents">Academic Documents</option>
                 </select>
               </div>
@@ -251,60 +270,183 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
                       border: isDark
                         ? "1px solid #4a5568"
                         : "1px solid #e2e8f0",
+
+                      /* Horizontal document card */
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "stretch",
+                      overflow: "hidden",
+                      minHeight: "260px",
                     }}
                   >
-                    <div className={styles.docHeader}>
-                      <h3
-                        className={styles.docTitle}
-                        style={{ color: isDark ? "#ffffff" : "#111827" }}
-                      >
-                        {doc.title}
-                      </h3>
-                    </div>
-                    <span
-                      className={styles.docCategory}
+                    {/* Document Cover Image - Left Side */}
+                    <div
+                      className={styles.docCover}
                       style={{
-                        backgroundColor: isDark ? "#4a5568" : "#f3f4f6",
-                        color: isDark ? "#f7fafc" : "#374151",
+                        width: "240px",
+                        minWidth: "240px",
+                        minHeight: "260px",
+                        marginBottom: "0",
+                        borderRadius: "10px 0 0 10px",
+                        overflow: "hidden",
+                        backgroundColor: isDark ? "#1f2937" : "#f3f4f6",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: isDark
+                          ? "1px solid #4a5568"
+                          : "1px solid #e5e7eb",
+                        boxSizing: "border-box",
+                        padding: "12px",
                       }}
                     >
-                      {doc.category}
-                    </span>
-                    <div className={styles.docMeta}>
-                      <p style={{ color: isDark ? "#e2e8f0" : "#4b5563" }}>
-                        <strong
-                          style={{ color: isDark ? "#ffffff" : "#111827" }}
+                      {doc.cover_image ? (
+                        <img
+                          src={doc.cover_image}
+                          alt={`${doc.title} cover`}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                            borderRadius: "6px",
+                          }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+
+                            e.currentTarget.parentElement.innerHTML = `
+                              <div style="
+                                width: 100%;
+                                height: 100%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                flex-direction: column;
+                                gap: 8px;
+                                color: ${isDark ? "#98a2b3" : "#667085"};
+                                font-size: 13px;
+                                text-align: center;
+                                padding: 15px;
+                                box-sizing: border-box;
+                              ">
+                                <span style="font-size: 36px;">📄</span>
+                                <span>Document Cover</span>
+                              </div>
+                            `;
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexDirection: "column",
+                            gap: "8px",
+                            color: isDark ? "#98a2b3" : "#667085",
+                            fontSize: "13px",
+                            textAlign: "center",
+                            padding: "15px",
+                            boxSizing: "border-box",
+                          }}
                         >
-                          Author:
-                        </strong>{" "}
-                        {doc.author}
-                      </p>
-                      <p style={{ color: isDark ? "#e2e8f0" : "#4b5563" }}>
-                        <strong
-                          style={{ color: isDark ? "#ffffff" : "#111827" }}
-                        >
-                          Serial:
-                        </strong>{" "}
-                        {doc.serial_number || doc.serial}
-                      </p>
-                      <p style={{ color: isDark ? "#e2e8f0" : "#4b5563" }}>
-                        <strong
-                          style={{ color: isDark ? "#ffffff" : "#111827" }}
-                        >
-                          Added:
-                        </strong>{" "}
-                        {new Date(
-                          doc.created_at || Date.now(),
-                        ).toLocaleDateString()}
-                      </p>
+                          <span style={{ fontSize: "36px" }}>📄</span>
+                          <span>Document Cover</span>
+                        </div>
+                      )}
                     </div>
 
-                    <button
-                      className={styles.docActionBtn}
-                      onClick={() => setSelectedDoc(doc)}
+                    {/* Document Information - Right Side */}
+                    <div
+                      className={styles.docCardContent}
+                      style={{
+                        flex: "1",
+                        minWidth: "0",
+                        padding: "24px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                      }}
                     >
-                      Read Document
-                    </button>
+                      <div className={styles.docHeader}>
+                        <h3
+                          className={styles.docTitle}
+                          style={{
+                            color: isDark ? "#ffffff" : "#111827",
+                          }}
+                        >
+                          {doc.title}
+                        </h3>
+                      </div>
+
+                      <span
+                        className={styles.docCategory}
+                        style={{
+                          backgroundColor: isDark ? "#4a5568" : "#f3f4f6",
+                          color: isDark ? "#f7fafc" : "#374151",
+                        }}
+                      >
+                        {doc.category}
+                      </span>
+
+                      <div className={styles.docMeta}>
+                        <p
+                          style={{
+                            color: isDark ? "#e2e8f0" : "#4b5563",
+                          }}
+                        >
+                          <strong
+                            style={{
+                              color: isDark ? "#ffffff" : "#111827",
+                            }}
+                          >
+                            Author:
+                          </strong>{" "}
+                          {doc.author}
+                        </p>
+
+                        <p
+                          style={{
+                            color: isDark ? "#e2e8f0" : "#4b5563",
+                          }}
+                        >
+                          <strong
+                            style={{
+                              color: isDark ? "#ffffff" : "#111827",
+                            }}
+                          >
+                            Serial:
+                          </strong>{" "}
+                          {doc.serial_number || doc.serial || "—"}
+                        </p>
+
+                        <p
+                          style={{
+                            color: isDark ? "#e2e8f0" : "#4b5563",
+                          }}
+                        >
+                          <strong
+                            style={{
+                              color: isDark ? "#ffffff" : "#111827",
+                            }}
+                          >
+                            Added:
+                          </strong>{" "}
+                          {doc.created_at
+                            ? new Date(doc.created_at).toLocaleDateString()
+                            : "—"}
+                        </p>
+                      </div>
+
+                      <button
+                        className={styles.docActionBtn}
+                        onClick={() => setSelectedDoc(doc)}
+                      >
+                        Read Document
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -329,6 +471,7 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
           <div className={styles.viewerContent}>
             <div className={styles.viewerHeader}>
               <h2>Secure Viewer: {selectedDoc.title}</h2>
+
               <button
                 className={styles.closeBtn}
                 onClick={() => setSelectedDoc(null)}
@@ -336,7 +479,14 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
                 Close Viewer
               </button>
             </div>
-            <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+
+            <div
+              style={{
+                flex: 1,
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
               <SafeDocumentViewer
                 userEmail={user?.email || "trainee@ssgi.com"}
                 ipAddress="192.168.1.100"

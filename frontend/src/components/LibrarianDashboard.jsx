@@ -3,16 +3,18 @@ import styles from "./LibrarianDashboard.module.css";
 import api from "../api";
 import NotificationCenter from "./NotificationCenter";
 import NotificationBell from "./NotificationBell";
+
 const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
   const currentTheme = localStorage.getItem("theme_preference") || "light";
   const isDark = currentTheme === "dark";
+
   const [documents, setDocuments] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [staffDepartments, setStaffDepartments] = useState([]);
   const [roles, setRoles] = useState([]);
 
-  // View Toggle State (Inventory vs Notifications)
-  const [activeView, setActiveView] = useState("inventory"); // "inventory" or "notifications"
+  // View Toggle State
+  const [activeView, setActiveView] = useState("inventory");
 
   // Upload Form State
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -22,6 +24,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
   const [keywords, setKeywords] = useState("");
   const [serial, setSerial] = useState("");
   const [file, setFile] = useState(null);
+
+  // Cover Image State
+  const [coverImage, setCoverImage] = useState(null);
+
   const [isLink, setIsLink] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -43,6 +49,13 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
   const [previewDoc, setPreviewDoc] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
+  // Reject Modal State
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectDoc, setRejectDoc] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectMessage, setRejectMessage] = useState("");
+  const [isRejecting, setIsRejecting] = useState(false);
+
   // Search/Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
@@ -56,8 +69,11 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
   const fetchRoles = async () => {
     try {
       const res = await fetch(import.meta.env.VITE_API_URL + "/api/roles", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       if (res.ok) {
         setRoles(await res.json());
       }
@@ -71,9 +87,12 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
       const res = await fetch(
         import.meta.env.VITE_API_URL + "/api/departments",
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
+
       if (res.ok) {
         setDepartments(await res.json());
       }
@@ -85,9 +104,12 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
       const res = await fetch(
         import.meta.env.VITE_API_URL + "/api/staff-departments",
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
+
       if (res.ok) {
         setStaffDepartments(await res.json());
       }
@@ -101,9 +123,12 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
       const res = await fetch(
         import.meta.env.VITE_API_URL + "/api/documents/search",
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
+
       if (res.ok) {
         setDocuments(await res.json());
       }
@@ -112,26 +137,105 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
     }
   };
 
+  // ============================================================
+  // SECURE DOCUMENT PREVIEW
+  // ============================================================
+
   const handlePreview = async (doc) => {
     try {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+
       const res = await api.get(`/api/documents/${doc.id}/stream`, {
-        responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      if (res.status === 200) {
-        const blob = res.data;
+
+      if (res.status !== 200 || !res.data) {
+        alert("Failed to load document preview.");
+        return;
+      }
+
+      const data = res.data;
+
+      // External Link Document
+      if (data.is_link && data.external_url) {
+        setPreviewUrl(data.external_url);
+        setPreviewDoc(doc);
+        return;
+      }
+
+      // Base64 Document
+      const base64Data =
+        data.base64Data || data.pdfBase64 || data.pdfData || null;
+
+      if (!base64Data) {
+        console.error("Preview response did not contain base64 document data.");
+        console.error("Backend response:", data);
+
+        alert("Document preview data was not found.");
+        return;
+      }
+
+      const cleanBase64 = String(base64Data).replace(/^data:.*?;base64,/, "");
+
+      try {
+        const byteCharacters = atob(cleanBase64);
+        const byteArrays = [];
+
+        const sliceSize = 1024 * 1024;
+
+        for (
+          let offset = 0;
+          offset < byteCharacters.length;
+          offset += sliceSize
+        ) {
+          const slice = byteCharacters.slice(offset, offset + sliceSize);
+          const byteNumbers = new Array(slice.length);
+
+          for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+          }
+
+          byteArrays.push(new Uint8Array(byteNumbers));
+        }
+
+        const blob = new Blob(byteArrays, {
+          type: "application/pdf",
+        });
+
+        if (blob.size === 0) {
+          alert("The document file is empty.");
+          return;
+        }
+
         const url = URL.createObjectURL(blob);
+
         setPreviewUrl(url);
         setPreviewDoc(doc);
-      } else {
-        alert("Failed to load document preview.");
+      } catch (decodeError) {
+        console.error("Failed to decode base64 document:", decodeError);
+        alert("Failed to decode the document preview.");
       }
     } catch (err) {
-      console.error("Failed to preview document", err);
+      console.error("Failed to preview document:", err);
+
+      if (err.response?.data) {
+        console.error("Preview API response:", err.response.data);
+      }
+
+      alert("Failed to load document preview.");
     }
   };
 
   const closePreview = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (previewUrl && previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
     setPreviewUrl(null);
     setPreviewDoc(null);
   };
@@ -157,12 +261,14 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
 
     try {
       const formData = new FormData();
+
       formData.append("title", title);
       formData.append("author", author);
       formData.append("category", category);
       formData.append("keywords", keywords);
       formData.append("serial_number", serial);
       formData.append("is_link", isLink);
+
       if (isLink) {
         formData.append("link_url", linkUrl);
         formData.append("description", description);
@@ -171,13 +277,20 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
       const isTrainee = targetRoleId === "1";
       const isStaff = targetRoleId === "2";
 
-      if (targetRoleId) formData.append("target_role_id", targetRoleId);
+      if (targetRoleId) {
+        formData.append("target_role_id", targetRoleId);
+      }
+
       if ((isTrainee || isStaff) && departmentIds && departmentIds.length > 0) {
         formData.append("department_ids", JSON.stringify(departmentIds));
       }
 
       if (!isLink) {
         formData.append("documentFile", file);
+      }
+
+      if (coverImage) {
+        formData.append("coverImage", coverImage);
       }
 
       const res = await fetch(import.meta.env.VITE_API_URL + "/api/documents", {
@@ -190,25 +303,35 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
 
       if (res.ok) {
         setMessage("Document saved successfully!");
+
         setTitle("");
         setAuthor("");
         setKeywords("");
         setSerial("");
         setFile(null);
+        setCoverImage(null);
         setLinkUrl("");
         setDescription("");
         setTargetRoleId("");
         setDepartmentIds([]);
+
         if (document.getElementById("librarianFileInput")) {
           document.getElementById("librarianFileInput").value = "";
         }
+
+        if (document.getElementById("librarianCoverImageInput")) {
+          document.getElementById("librarianCoverImageInput").value = "";
+        }
+
         fetchDocuments();
+
         setTimeout(() => {
           setIsUploadModalOpen(false);
           setMessage("");
         }, 1500);
       } else {
         const errorData = await res.json().catch(() => ({}));
+
         setMessage(`Error: ${errorData.error || "Failed to save document"}`);
       }
     } catch (err) {
@@ -222,15 +345,18 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
       !window.confirm(
         "Are you sure you want to permanently archive this document?",
       )
-    )
+    ) {
       return;
+    }
 
     try {
       const res = await fetch(
         import.meta.env.VITE_API_URL + `/api/documents/${id}`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
 
@@ -244,15 +370,12 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
     }
   };
 
-  const handleApproval = async (id, status) => {
-    let rejection_reason = null;
+  // ============================================================
+  // APPROVAL
+  // ============================================================
 
-    if (status === "rejected") {
-      rejection_reason = window.prompt(
-        "Please provide a reason for rejecting this document:",
-      );
-      if (rejection_reason === null) return;
-    }
+  const handleApproval = async (id, status, customReason = null) => {
+    let rejection_reason = customReason;
 
     try {
       const res = await fetch(
@@ -263,19 +386,93 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ status, rejection_reason }),
+          body: JSON.stringify({
+            status,
+            rejection_reason,
+          }),
         },
       );
+
       if (res.ok) {
         fetchDocuments();
+
         if (previewDoc && previewDoc.id === id) {
           closePreview();
         }
+
+        return true;
       } else {
         alert(`Failed to mark document as ${status}.`);
+        return false;
       }
     } catch (err) {
-      console.error(`Failed to update approval status`, err);
+      console.error("Failed to update approval status", err);
+      return false;
+    }
+  };
+
+  // ============================================================
+  // OPEN REJECT MODAL
+  // ============================================================
+
+  const openRejectModal = (doc) => {
+    setRejectDoc(doc);
+    setRejectionReason("");
+    setRejectMessage("");
+    setIsRejectModalOpen(true);
+  };
+
+  // ============================================================
+  // CLOSE REJECT MODAL
+  // ============================================================
+
+  const closeRejectModal = () => {
+    if (isRejecting) {
+      return;
+    }
+
+    setIsRejectModalOpen(false);
+    setRejectDoc(null);
+    setRejectionReason("");
+    setRejectMessage("");
+  };
+
+  // ============================================================
+  // CONFIRM REJECTION
+  // ============================================================
+
+  const handleRejectConfirm = async (e) => {
+    e.preventDefault();
+
+    setRejectMessage("");
+
+    const trimmedReason = rejectionReason.trim();
+
+    if (!trimmedReason) {
+      setRejectMessage("Please provide a reason for rejecting this document.");
+      return;
+    }
+
+    if (!rejectDoc) {
+      setRejectMessage("No document selected for rejection.");
+      return;
+    }
+
+    setIsRejecting(true);
+
+    const success = await handleApproval(
+      rejectDoc.id,
+      "rejected",
+      trimmedReason,
+    );
+
+    setIsRejecting(false);
+
+    if (success) {
+      setIsRejectModalOpen(false);
+      setRejectDoc(null);
+      setRejectionReason("");
+      setRejectMessage("");
     }
   };
 
@@ -323,6 +520,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
         fetchDocuments();
       } else {
         const errorData = await res.json().catch(() => ({}));
+
         setEditMessage(
           `Error: ${errorData.error || "Failed to update document"}`,
         );
@@ -345,13 +543,16 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
       doc.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (doc.serial_number &&
         doc.serial_number.toLowerCase().includes(searchQuery.toLowerCase()));
+
     const matchesCategory = filterCategory
       ? doc.category === filterCategory
       : true;
+
     return matchesSearch && matchesCategory;
   });
 
   const pendingDocs = filteredDocs.filter((doc) => doc.status === "pending");
+
   const otherDocs = filteredDocs.filter((doc) => doc.status !== "pending");
 
   const getStatusClass = (status) => {
@@ -381,18 +582,24 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
               d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
             />
           </svg>
+
           <div className={styles.brandText}>
             <span className={styles.brandSSGI}>SSGI</span>
             <span className={styles.brandSecure}> Digital Library</span>
           </div>
         </div>
+
         <div
           className={styles.headerActions}
-          style={{ display: "flex", alignItems: "center", gap: "10px" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+          }}
         >
           <span className={styles.roleBadge}>Librarian Account</span>
 
-          {/* Navigation Toggle between Inventory and Notifications */}
+          {/* Navigation Toggle */}
           <div
             style={{
               display: "flex",
@@ -449,23 +656,27 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
               viewBox="0 0 24 24"
               width="16"
               height="16"
-              style={{ display: "inline", marginRight: "4px" }}
+              style={{
+                display: "inline",
+                marginRight: "4px",
+              }}
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"
               />
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.7 1.7-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56v.1h-2.4v-.1a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.7-1.7.06-.06A1.7 1.7 0 0 0 8.46 15a1.7 1.7 0 0 0-1.56-1.03h-.1v-2.4h.1A1.7 1.7 0 0 0 8.46 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.7-1.7.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 12.73 5.2v-.1h2.4v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.7 1.7-.06.06A1.7 1.7 0 0 0 19.4 10c.23.63.82 1.03 1.56 1.03h.1v2.4h-.1A1.7 1.7 0 0 0 19.4 15z"
               />
             </svg>
             Settings
           </button>
+
           <button
             className={styles.signOutBtn}
             onClick={handleSignOut}
@@ -477,7 +688,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
               viewBox="0 0 24 24"
               width="16"
               height="16"
-              style={{ display: "inline", marginRight: "4px" }}
+              style={{
+                display: "inline",
+                marginRight: "4px",
+              }}
             >
               <path
                 strokeLinecap="round"
@@ -499,7 +713,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
           </div>
         ) : (
           <>
-            {/* Toolbar: Search, Filter, & Upload */}
+            {/* Toolbar */}
             <div className={styles.toolbar}>
               <div className={styles.searchBar}>
                 <input
@@ -508,6 +722,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
+
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
@@ -523,6 +738,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   <option value="Academic Documents">Academic Documents</option>
                 </select>
               </div>
+
               <button
                 className={styles.uploadBtn}
                 onClick={() => setIsUploadModalOpen(true)}
@@ -545,13 +761,16 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
               </button>
             </div>
 
-            {/* Review Queue (Only visible if pending docs exist) */}
+            {/* Review Queue */}
             {pendingDocs.length > 0 && (
               <div
                 className={styles.card}
-                style={{ borderLeft: "4px solid #f59e0b" }}
+                style={{
+                  borderLeft: "4px solid #f59e0b",
+                }}
               >
                 <h2>Review Queue ({pendingDocs.length} Pending)</h2>
+
                 <div className={styles.tableWrapper}>
                   <table>
                     <thead>
@@ -563,12 +782,16 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                         <th>Actions</th>
                       </tr>
                     </thead>
+
                     <tbody>
                       {pendingDocs.map((doc) => (
                         <tr key={doc.id}>
                           <td>{doc.serial_number || doc.serial}</td>
+
                           <td style={{ fontWeight: "600" }}>{doc.title}</td>
+
                           <td>{doc.author}</td>
+
                           <td>
                             <span
                               className={`${styles.badge} ${styles.badgePending}`}
@@ -576,14 +799,21 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                               PENDING
                             </span>
                           </td>
+
                           <td>
-                            <div style={{ display: "flex", gap: "8px" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "8px",
+                              }}
+                            >
                               <button
                                 className={styles.secondaryActionBtn}
                                 onClick={() => handlePreview(doc)}
                               >
                                 Preview
                               </button>
+
                               <button
                                 className={styles.primaryActionBtn}
                                 onClick={() =>
@@ -592,11 +822,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                               >
                                 Approve
                               </button>
+
                               <button
                                 className={styles.dangerActionBtn}
-                                onClick={() =>
-                                  handleApproval(doc.id, "rejected")
-                                }
+                                onClick={() => openRejectModal(doc)}
                               >
                                 Reject
                               </button>
@@ -613,6 +842,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
             {/* Inventory Table */}
             <div className={styles.card}>
               <h2>Library Inventory</h2>
+
               <div className={styles.tableWrapper}>
                 <table>
                   <thead>
@@ -625,38 +855,53 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                       <th>Actions</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {otherDocs.length > 0 ? (
                       otherDocs.map((doc) => (
                         <tr key={doc.id}>
                           <td>{doc.serial_number || doc.serial}</td>
+
                           <td style={{ fontWeight: "600" }}>{doc.title}</td>
+
                           <td>{doc.author}</td>
+
                           <td>{doc.category}</td>
+
                           <td>
                             <span
-                              className={`${styles.badge} ${getStatusClass(doc.status)}`}
+                              className={`${styles.badge} ${getStatusClass(
+                                doc.status,
+                              )}`}
                             >
                               {doc.status ? doc.status : "APPROVED"}
                             </span>
                           </td>
+
                           <td>
                             {(user?.role === "System Administrators" ||
                               user?.role === "Librarians" ||
                               doc.status === "APPROVED") && (
-                              <div style={{ display: "flex", gap: "8px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  gap: "8px",
+                                }}
+                              >
                                 <button
                                   className={styles.secondaryActionBtn}
                                   onClick={() => handlePreview(doc)}
                                 >
                                   View
                                 </button>
+
                                 <button
                                   className={styles.secondaryActionBtn}
                                   onClick={() => handleEditClick(doc)}
                                 >
                                   Edit
                                 </button>
+
                                 <button
                                   className={styles.dangerActionBtn}
                                   onClick={() => handleArchive(doc.id)}
@@ -683,13 +928,15 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
         )}
       </main>
 
-      {/* --- MODALS --- */}
+      {/* ============================================================
+          UPLOAD MODAL
+          ============================================================ */}
 
-      {/* Upload Modal */}
       {isUploadModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h2 className={styles.modalHeader}>Upload New Document</h2>
+
             <form onSubmit={handleSave}>
               {message && (
                 <p
@@ -704,7 +951,8 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
               )}
 
               <div className={styles.formGroup}>
-                <label>Document Title</label>
+                <label>Document Title *</label>
+
                 <input
                   type="text"
                   placeholder="Enter title"
@@ -713,8 +961,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   required
                 />
               </div>
+
               <div className={styles.formGroup}>
-                <label>Author</label>
+                <label>Author *</label>
+
                 <input
                   type="text"
                   placeholder="Enter author"
@@ -723,11 +973,14 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   required
                 />
               </div>
+
               <div className={styles.formGroup}>
-                <label>Category</label>
+                <label>Category *</label>
+
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
+                  required
                 >
                   <option>Research Publications</option>
                   <option>Geospatial Training Materials</option>
@@ -735,8 +988,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   <option>Academic Documents</option>
                 </select>
               </div>
+
               <div className={styles.formGroup}>
                 <label>Keywords (comma separated)</label>
+
                 <input
                   type="text"
                   placeholder="e.g., mapping, topography"
@@ -744,32 +999,36 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   onChange={(e) => setKeywords(e.target.value)}
                 />
               </div>
+
               <div className={styles.formGroup}>
                 <label>Target Role (Who can view this?)</label>
+
                 <select
                   value={targetRoleId}
                   onChange={(e) => setTargetRoleId(e.target.value)}
                 >
-                  <option value="">Public / All Roles</option>
+                  <option value=""> All Roles</option>
                   <option value="1">Trainee</option>
                   <option value="2">Staff</option>
                   <option value="3">Librarian</option>
                   <option value="4">Admin</option>
                 </select>
               </div>
+
               {(targetRoleId === "1" || targetRoleId === "2") && (
                 <div className={styles.formGroup}>
                   <label>Department Access</label>
+
                   <p
                     style={{
                       fontSize: "12px",
-
                       marginBottom: "5px",
                     }}
                   >
                     Hold Ctrl/Cmd to select multiple. Leave empty for
                     Global/All.
                   </p>
+
                   <select
                     multiple
                     value={departmentIds}
@@ -797,8 +1056,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   </select>
                 </div>
               )}
+
               <div className={styles.formGroup}>
-                <label>Serial Number</label>
+                <label>Serial Number *</label>
+
                 <input
                   type="text"
                   placeholder="e.g., SR-12345"
@@ -807,6 +1068,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   required
                 />
               </div>
+
               <div
                 className={styles.formGroup}
                 style={{
@@ -817,7 +1079,11 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                 }}
               >
                 <label
-                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                  }}
                 >
                   <input
                     type="radio"
@@ -826,8 +1092,13 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   />
                   Upload Document
                 </label>
+
                 <label
-                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                  }}
                 >
                   <input
                     type="radio"
@@ -839,20 +1110,45 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
               </div>
 
               {!isLink ? (
-                <div className={styles.formGroup}>
-                  <label>Document File</label>
-                  <input
-                    id="librarianFileInput"
-                    type="file"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.jpg,.jpeg,.png,.svg,.txt,.md,.zip,.gz"
-                    onChange={(e) => setFile(e.target.files[0])}
-                    required
-                  />
-                </div>
+                <>
+                  <div className={styles.formGroup}>
+                    <label>Document File *</label>
+
+                    <input
+                      id="librarianFileInput"
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.jpg,.jpeg,.png,.svg,.txt,.md,.zip,.gz"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Cover Image</label>
+
+                    <input
+                      id="librarianCoverImageInput"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={(e) => setCoverImage(e.target.files[0] || null)}
+                    />
+
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        marginTop: "5px",
+                      }}
+                    >
+                      Optional. Upload a JPG, PNG, or WEBP image to use as the
+                      document cover.
+                    </p>
+                  </div>
+                </>
               ) : (
                 <>
                   <div className={styles.formGroup}>
-                    <label>External URL</label>
+                    <label>External URL *</label>
+
                     <input
                       type="url"
                       placeholder="https://example.com/reference"
@@ -861,8 +1157,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                       required
                     />
                   </div>
+
                   <div className={styles.formGroup}>
                     <label>External Information / Description</label>
+
                     <textarea
                       placeholder="Add notes, context, or metadata about this reference..."
                       value={description}
@@ -887,6 +1185,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                 >
                   Cancel
                 </button>
+
                 <button type="submit" className={styles.uploadBtn}>
                   Upload to Library
                 </button>
@@ -896,20 +1195,30 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
         </div>
       )}
 
-      {/* Edit Modal */}
+      {/* ============================================================
+          EDIT MODAL
+          ============================================================ */}
+
       {isEditModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h2 className={styles.modalHeader}>Edit Document Metadata</h2>
+
             <form onSubmit={handleUpdate}>
               {editMessage && (
-                <p style={{ marginBottom: "15px", fontWeight: "bold" }}>
+                <p
+                  style={{
+                    marginBottom: "15px",
+                    fontWeight: "bold",
+                  }}
+                >
                   {editMessage}
                 </p>
               )}
 
               <div className={styles.formGroup}>
                 <label>Document Title</label>
+
                 <input
                   type="text"
                   value={editTitle}
@@ -917,8 +1226,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   required
                 />
               </div>
+
               <div className={styles.formGroup}>
                 <label>Author</label>
+
                 <input
                   type="text"
                   value={editAuthor}
@@ -926,8 +1237,10 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   required
                 />
               </div>
+
               <div className={styles.formGroup}>
                 <label>Category</label>
+
                 <select
                   value={editCategory}
                   onChange={(e) => setEditCategory(e.target.value)}
@@ -938,16 +1251,20 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                   <option>Academic Documents</option>
                 </select>
               </div>
+
               <div className={styles.formGroup}>
                 <label>Keywords</label>
+
                 <input
                   type="text"
                   value={editKeywords}
                   onChange={(e) => setEditKeywords(e.target.value)}
                 />
               </div>
+
               <div className={styles.formGroup}>
                 <label>Serial Number</label>
+
                 <input
                   type="text"
                   value={editSerial}
@@ -964,6 +1281,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                 >
                   Cancel
                 </button>
+
                 <button type="submit" className={styles.uploadBtn}>
                   Save Changes
                 </button>
@@ -973,14 +1291,23 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
         </div>
       )}
 
-      {/* Preview Modal */}
+      {/* ============================================================
+          PREVIEW MODAL
+          ============================================================ */}
+
       {previewDoc && previewUrl && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContentPreview}>
             <div className={styles.sectionHeader}>
-              <h2 style={{ margin: 0, fontSize: "20px" }}>
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: "20px",
+                }}
+              >
                 Viewing: {previewDoc.title}
               </h2>
+
               <button
                 className={styles.secondaryActionBtn}
                 onClick={closePreview}
@@ -988,6 +1315,7 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                 Close Viewer
               </button>
             </div>
+
             <iframe
               src={previewUrl}
               style={{
@@ -1017,14 +1345,129 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
                 >
                   Approve Document
                 </button>
+
                 <button
                   className={styles.dangerActionBtn}
-                  onClick={() => handleApproval(previewDoc.id, "rejected")}
+                  onClick={() => openRejectModal(previewDoc)}
                 >
                   Reject Document
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+          REJECT DOCUMENT MODAL
+          ============================================================ */}
+
+      {isRejectModalOpen && rejectDoc && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.rejectModalContent}>
+            <div className={styles.rejectModalHeader}>
+              <div className={styles.rejectIconWrapper}>
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v4m0 4h.01M10.29 3.86l-7.82 14a2 2 0 001.75 2.98h15.56a2 2 0 001.75-2.98l-7.82-14a2 2 0 00-3.42 0z"
+                  />
+                </svg>
+              </div>
+
+              <div>
+                <h2 className={styles.rejectModalTitle}>Reject Document</h2>
+
+                <p className={styles.rejectModalSubtitle}>
+                  Please provide a reason for rejecting this document.
+                </p>
+              </div>
+            </div>
+
+            <div className={styles.rejectDocumentInfo}>
+              <span className={styles.rejectDocumentLabel}>Document</span>
+
+              <span className={styles.rejectDocumentTitle}>
+                {rejectDoc.title}
+              </span>
+
+              {rejectDoc.author && (
+                <span className={styles.rejectDocumentAuthor}>
+                  Author: {rejectDoc.author}
+                </span>
+              )}
+            </div>
+
+            <form onSubmit={handleRejectConfirm}>
+              <div className={styles.formGroup}>
+                <label htmlFor="rejectionReason">Rejection Reason *</label>
+
+                <textarea
+                  id="rejectionReason"
+                  className={styles.rejectionTextarea}
+                  placeholder="Explain why this document is being rejected..."
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  rows="6"
+                  maxLength="1000"
+                  autoFocus
+                />
+
+                <div className={styles.rejectionCharacterCount}>
+                  {rejectionReason.length}/1000
+                </div>
+              </div>
+
+              {rejectMessage && (
+                <div className={styles.rejectErrorMessage}>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+
+                  {rejectMessage}
+                </div>
+              )}
+
+              <div className={styles.rejectModalActions}>
+                <button
+                  type="button"
+                  className={styles.secondaryActionBtn}
+                  onClick={closeRejectModal}
+                  disabled={isRejecting}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className={styles.dangerActionBtn}
+                  disabled={isRejecting}
+                >
+                  {isRejecting ? "Rejecting..." : "Reject Document"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

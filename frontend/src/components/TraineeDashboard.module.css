@@ -1,35 +1,46 @@
 /* =========================================================
    SSGI SecureDoc — Trainee Dashboard
-   Unified Design System
+   Unified SSGI Space / Geospatial Design System
    ========================================================= */
 
 .traineeLayout {
-  --primary: #0b1f3a;
-  --action: #155eef;
-  --accent: #d4a72c;
-  --page-bg: #f5f7fa;
+  --primary: #071326;
+  --primary-light: #0d213d;
+  --action: #c49b35;
+  --action-light: #f4d98b;
+  --action-hover: #d9b95f;
+
+  --page-bg: #f4f6f9;
   --surface: #ffffff;
-  --text: #172033;
+  --surface-soft: #f8fafc;
+
+  --text: #071326;
   --muted: #667085;
   --border: #e4e7ec;
-  --danger: #f04438;
+
+  --danger: #d92d20;
+  --danger-soft: #fff6f5;
   --disabled: #98a2b3;
 
   display: flex;
   flex-direction: column;
 
   min-height: 80vh;
+  width: 100%;
 
   background-color: var(--page-bg);
-
-  border-radius: 12px;
-  overflow: hidden;
+  color: var(--text);
 
   border: 1px solid var(--border);
+  border-radius: 14px;
+
+  overflow: hidden;
 
   box-shadow:
-    0 2px 4px rgba(16, 24, 40, 0.04),
-    0 8px 24px rgba(16, 24, 40, 0.06);
+    0 2px 5px rgba(16, 24, 40, 0.04),
+    0 12px 30px rgba(16, 24, 40, 0.07);
+
+  box-sizing: border-box;
 }
 
 /* =========================================================
@@ -41,11 +52,14 @@
   justify-content: space-between;
   align-items: center;
 
-  padding: 18px 30px;
+  min-height: 70px;
+  padding: 16px 30px;
 
-  background-color: var(--surface);
+  background: linear-gradient(135deg, #ffffff 0%, #fbfcfd 100%);
 
   border-bottom: 1px solid var(--border);
+
+  box-sizing: border-box;
 }
 
 /* =========================================================
@@ -55,7 +69,7 @@
 .brandBox {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
 }
 
 .shieldIcon {
@@ -65,14 +79,15 @@
   color: var(--action);
 
   flex-shrink: 0;
+
+  filter: drop-shadow(0 3px 7px rgba(196, 155, 53, 0.16));
 }
 
 .brandText {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 850;
 
-  letter-spacing: -0.02em;
-
+  letter-spacing: -0.025em;
   line-height: 1.2;
 }
 
@@ -81,7 +96,7 @@
 }
 
 .brandSecure {
-  color: var(--text);
+  color: #344054;
 }
 
 /* =========================================================
@@ -91,7 +106,7 @@
 .headerActions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 /* =========================================================
@@ -101,24 +116,32 @@
 .roleBadge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
 
-  background-color: #eff4ff;
-  color: var(--action);
+  padding: 7px 13px;
 
-  padding: 6px 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(196, 155, 53, 0.1),
+    rgba(244, 217, 139, 0.06)
+  );
 
+  color: #8b6b1f;
+
+  border: 1px solid rgba(196, 155, 53, 0.28);
   border-radius: 999px;
 
   font-size: 12px;
-  font-weight: 700;
-
-  border: 1px solid #c7d7fe;
+  font-weight: 800;
 
   white-space: nowrap;
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 /* =========================================================
-   Sign Out Button
+   Sign Out / Settings Button
    ========================================================= */
 
 .signOutBtn {
@@ -130,32 +153,32 @@
 
   padding: 9px 15px;
 
-  background-color: #fff6f5;
+  background-color: var(--danger-soft);
   color: var(--danger);
 
   border: 1px solid #fecdca;
-  border-radius: 8px;
+  border-radius: 9px;
 
   cursor: pointer;
 
   font-family: inherit;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 750;
 
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
 .signOutBtn:hover {
   background-color: #fef0ef;
   border-color: #fda29b;
-  color: #d92d20;
+  color: #c92a20;
 
-  box-shadow: 0 2px 6px rgba(240, 68, 56, 0.1);
+  box-shadow: 0 5px 14px rgba(240, 68, 56, 0.12);
 
   transform: translateY(-1px);
 }
@@ -167,7 +190,7 @@
 .signOutBtn:focus-visible {
   outline: none;
 
-  box-shadow: 0 0 0 3px rgba(240, 68, 56, 0.14);
+  box-shadow: 0 0 0 3px rgba(240, 68, 56, 0.13);
 }
 
 /* =========================================================
@@ -175,13 +198,26 @@
    ========================================================= */
 
 .mainContent {
+  position: relative;
+
   flex: 1;
 
   padding: 36px 40px;
 
   overflow-y: auto;
 
-  background-color: var(--page-bg);
+  background:
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(196, 155, 53, 0.045),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 5% 90%,
+      rgba(21, 94, 239, 0.035),
+      transparent 25%
+    ),
+    var(--page-bg);
 
   box-sizing: border-box;
 }
@@ -193,111 +229,139 @@
 .welcomeBanner {
   position: relative;
 
-  background: linear-gradient(135deg, #0b1f3a 0%, #12345d 55%, #155eef 100%);
+  background:
+    radial-gradient(
+      circle at 88% 35%,
+      rgba(244, 217, 139, 0.11),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 15% 90%,
+      rgba(21, 94, 239, 0.12),
+      transparent 28%
+    ),
+    linear-gradient(135deg, #02050a 0%, #071326 50%, #0b2039 100%);
 
   color: #ffffff;
 
-  padding: 34px 40px;
+  padding: 36px 40px;
 
-  border-radius: 12px;
+  border: 1px solid rgba(244, 217, 139, 0.12);
+  border-radius: 16px;
 
   margin-bottom: 28px;
 
-  box-shadow: 0 10px 24px rgba(11, 31, 58, 0.18);
+  box-shadow:
+    0 15px 35px rgba(7, 19, 38, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
 
   overflow: hidden;
 
   isolation: isolate;
 }
 
-/* =========================================================
-   Welcome Content Layer
-   ========================================================= */
-
-.welcomeBanner h2,
-.welcomeBanner p,
-.readOnlyNotice {
-  position: relative;
-  z-index: 2;
-}
-
-.welcomeBanner h2 {
-  margin: 0 0 10px 0;
-
-  font-size: 26px;
-  font-weight: 800;
-
-  line-height: 1.3;
-
-  color: #ffffff;
-
-  letter-spacing: -0.02em;
-}
-
-.welcomeBanner p {
-  margin: 0;
-
-  max-width: 650px;
-
-  font-size: 15px;
-
-  color: #e8eef7;
-
-  line-height: 1.6;
-}
-
-/* =========================================================
-   Decorative Circle
-   ========================================================= */
+/* Technical grid */
 
 .welcomeBanner::after {
   content: "";
 
   position: absolute;
+  inset: 0;
 
-  top: -50%;
-  right: -5%;
+  background-image:
+    linear-gradient(rgba(244, 217, 139, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 217, 139, 0.03) 1px, transparent 1px);
 
-  width: 300px;
-  height: 300px;
+  background-size: 65px 65px;
 
-  background: rgba(255, 255, 255, 0.055);
+  opacity: 0.7;
 
-  border-radius: 50%;
-
-  z-index: 1;
+  z-index: 0;
 
   pointer-events: none;
 }
 
-/* =========================================================
-   Gold Accent Decoration
-   ========================================================= */
+/* Decorative orbital circle */
 
 .welcomeBanner::before {
   content: "";
 
   position: absolute;
 
-  width: 90px;
-  height: 4px;
+  top: -120px;
+  right: -70px;
 
-  left: 40px;
-  bottom: 18px;
+  width: 300px;
+  height: 300px;
 
-  background-color: var(--accent);
+  border: 1px solid rgba(244, 217, 139, 0.1);
 
-  border-radius: 999px;
+  border-radius: 50%;
 
-  opacity: 0.9;
+  box-shadow:
+    0 0 0 28px rgba(244, 217, 139, 0.025),
+    0 0 0 58px rgba(244, 217, 139, 0.015);
 
-  z-index: 2;
+  z-index: 1;
 
   pointer-events: none;
 }
 
+.welcomeBanner h2,
+.welcomeBanner p,
+.readOnlyNotice {
+  position: relative;
+  z-index: 3;
+}
+
+.welcomeBanner h2 {
+  margin: 0 0 10px 0;
+
+  color: #ffffff;
+
+  font-size: 27px;
+  font-weight: 850;
+
+  line-height: 1.3;
+
+  letter-spacing: -0.025em;
+}
+
+.welcomeBanner p {
+  margin: 0;
+
+  max-width: 700px;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
 /* =========================================================
-   Read-Only Restricted Access Notice
+   Welcome Gold Accent
+   ========================================================= */
+
+.welcomeBanner h2::after {
+  content: "";
+
+  display: block;
+
+  width: 58px;
+  height: 3px;
+
+  margin-top: 14px;
+
+  background: linear-gradient(90deg, #c49b35, #f4d98b);
+
+  border-radius: 999px;
+
+  box-shadow: 0 0 12px rgba(244, 217, 139, 0.12);
+}
+
+/* =========================================================
+   Read-Only Notice
    ========================================================= */
 
 .readOnlyNotice {
@@ -306,28 +370,35 @@
 
   gap: 8px;
 
-  background-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(
+    135deg,
+    rgba(244, 217, 139, 0.1),
+    rgba(255, 255, 255, 0.055)
+  );
 
   color: #ffffff;
 
   padding: 8px 14px;
 
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(244, 217, 139, 0.25);
+  border-radius: 999px;
 
-  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 750;
 
-  font-size: 13px;
-  font-weight: 700;
+  margin-top: 22px;
 
-  margin-top: 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .readOnlyNotice svg {
   width: 17px;
   height: 17px;
+
+  color: #f4d98b;
 
   flex-shrink: 0;
 }
@@ -337,19 +408,37 @@
    ========================================================= */
 
 .searchSection {
-  background-color: var(--surface);
+  position: relative;
+
+  background: linear-gradient(145deg, #ffffff, #fafbfc);
 
   padding: 24px 25px;
 
-  border-radius: 12px;
+  border-radius: 14px;
 
   border: 1px solid var(--border);
 
   margin-bottom: 28px;
 
   box-shadow:
-    0 1px 3px rgba(16, 24, 40, 0.04),
-    0 4px 10px rgba(16, 24, 40, 0.03);
+    0 2px 5px rgba(16, 24, 40, 0.035),
+    0 8px 20px rgba(16, 24, 40, 0.035);
+}
+
+.searchSection::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 24px;
+
+  width: 48px;
+  height: 3px;
+
+  background: linear-gradient(90deg, #c49b35, #f4d98b);
+
+  border-radius: 0 0 999px 999px;
 }
 
 /* =========================================================
@@ -367,7 +456,7 @@
   padding: 12px 15px;
 
   border: 1px solid #d0d5dd;
-  border-radius: 8px;
+  border-radius: 9px;
 
   background-color: #f9fafb;
 
@@ -379,9 +468,9 @@
   font-size: 14px;
 
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
 }
 
 .searchBar input::placeholder {
@@ -400,14 +489,14 @@
 
 .searchBar input:hover,
 .searchBar select:hover {
-  border-color: #b8c0cc;
+  border-color: rgba(196, 155, 53, 0.42);
 }
 
 .searchBar input:focus,
 .searchBar select:focus {
-  border-color: var(--action);
+  border-color: #c49b35;
 
-  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.12);
+  box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.11);
 
   background-color: #ffffff;
 }
@@ -419,41 +508,157 @@
 .documentGrid {
   display: grid;
 
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
 
-  gap: 22px;
+  gap: 20px;
+
+  align-items: stretch;
 }
 
 /* =========================================================
    Document Card
+   Medium Horizontal Layout
    ========================================================= */
 
 .docCard {
-  display: flex;
-  flex-direction: column;
+  position: relative;
 
-  background-color: var(--surface);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+
+  width: 100%;
+
+  min-height: 240px;
+
+  background: linear-gradient(145deg, #ffffff 0%, #fbfcfd 100%);
 
   border: 1px solid var(--border);
 
-  padding: 22px;
+  padding: 0;
 
-  border-radius: 12px;
+  border-radius: 15px;
 
-  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+  overflow: hidden;
+
+  box-shadow: 0 3px 8px rgba(16, 24, 40, 0.04);
 
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+
+  box-sizing: border-box;
+}
+
+/* Gold top accent */
+
+.docCard::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background: linear-gradient(90deg, #c49b35, #f4d98b, #c49b35);
+
+  opacity: 0;
+
+  transition: opacity 0.3s ease;
+
+  z-index: 2;
 }
 
 .docCard:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
 
-  border-color: #cfd5df;
+  border-color: rgba(196, 155, 53, 0.34);
 
-  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.08);
+  box-shadow:
+    0 15px 32px rgba(16, 24, 40, 0.1),
+    0 0 0 1px rgba(196, 155, 53, 0.035);
+}
+
+.docCard:hover::before {
+  opacity: 1;
+}
+
+/* =========================================================
+   Document Cover
+   ========================================================= */
+
+.docCover {
+  flex: 0 0 190px;
+
+  width: 190px;
+  min-width: 190px;
+
+  min-height: 240px;
+
+  margin: 0;
+
+  padding: 12px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at center, rgba(21, 94, 239, 0.06), transparent 60%),
+    #f3f5f8;
+
+  border-right: 1px solid var(--border);
+
+  overflow: hidden;
+}
+
+.docCover img {
+  width: 100%;
+  height: 100%;
+
+  max-width: 100%;
+  max-height: 100%;
+
+  object-fit: contain;
+
+  display: block;
+
+  border-radius: 7px;
+
+  transition:
+    transform 0.35s ease,
+    filter 0.35s ease;
+}
+
+.docCard:hover .docCover img {
+  transform: scale(1.025);
+
+  filter: brightness(0.98) contrast(1.02);
+}
+
+/* =========================================================
+   Document Card Content
+   ========================================================= */
+
+.docCardContent {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 20px 22px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
 }
 
 /* =========================================================
@@ -462,12 +667,13 @@
 
 .docHeader {
   display: flex;
+
   justify-content: space-between;
   align-items: flex-start;
 
-  gap: 12px;
+  gap: 10px;
 
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 /* =========================================================
@@ -480,11 +686,14 @@
   color: var(--text);
 
   font-size: 18px;
-  font-weight: 700;
 
-  line-height: 1.35;
+  font-weight: 800;
 
-  letter-spacing: -0.01em;
+  line-height: 1.4;
+
+  letter-spacing: -0.015em;
+
+  word-break: break-word;
 }
 
 /* =========================================================
@@ -492,24 +701,34 @@
    ========================================================= */
 
 .docCategory {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
 
   padding: 5px 10px;
 
-  background-color: #f2f4f7;
-  color: var(--muted);
+  background: linear-gradient(
+    135deg,
+    rgba(196, 155, 53, 0.1),
+    rgba(244, 217, 139, 0.045)
+  );
+
+  color: #8b6b1f;
 
   border-radius: 999px;
 
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+
+  font-weight: 800;
 
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 
-  margin-bottom: 14px;
+  letter-spacing: 0.55px;
 
-  border: 1px solid #eaecf0;
+  margin-bottom: 13px;
+
+  border: 1px solid rgba(196, 155, 53, 0.22);
 }
 
 /* =========================================================
@@ -521,16 +740,25 @@
 
   font-size: 13px;
 
-  margin-bottom: 20px;
+  margin-bottom: 17px;
 
   flex: 1;
 
-  line-height: 1.6;
+  line-height: 1.65;
+}
+
+.docMeta p {
+  margin: 0 0 6px 0;
+}
+
+.docMeta p:last-child {
+  margin-bottom: 0;
 }
 
 .docMeta strong {
   color: var(--text);
-  font-weight: 700;
+
+  font-weight: 750;
 }
 
 /* =========================================================
@@ -540,40 +768,47 @@
 .docActionBtn {
   width: 100%;
 
-  padding: 11px 14px;
+  padding: 10px 13px;
 
-  background-color: var(--action);
-  color: #ffffff;
+  background: linear-gradient(135deg, #c49b35 0%, #f4d98b 52%, #c49b35 100%);
 
-  border: 1px solid var(--action);
-  border-radius: 8px;
+  color: #071326;
+
+  border: 1px solid rgba(196, 155, 53, 0.58);
+
+  border-radius: 9px;
 
   cursor: pointer;
 
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
+
+  font-size: 13px;
+
+  font-weight: 850;
 
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   gap: 8px;
 }
 
 .docActionBtn:hover {
-  background-color: #0f4fd4;
-  border-color: #0f4fd4;
+  background: linear-gradient(135deg, #f4d98b 0%, #ffe7a8 50%, #d9b95f 100%);
 
-  box-shadow: 0 4px 10px rgba(21, 94, 239, 0.18);
+  border-color: #c49b35;
 
-  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(196, 155, 53, 0.18);
+
+  transform: translateY(-2px);
 }
 
 .docActionBtn:active {
@@ -583,7 +818,9 @@
 .docActionBtn:focus-visible {
   outline: none;
 
-  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.16);
+  box-shadow:
+    0 0 0 3px rgba(196, 155, 53, 0.16),
+    0 5px 12px rgba(196, 155, 53, 0.12);
 }
 
 .docActionBtn svg {
@@ -605,13 +842,16 @@
   right: 0;
   bottom: 0;
 
-  background-color: rgba(11, 31, 58, 0.78);
+  background: rgba(2, 5, 10, 0.82);
 
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(7px);
+
+  -webkit-backdrop-filter: blur(7px);
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   z-index: 1000;
@@ -627,22 +867,26 @@
 
 .viewerContent {
   width: 95%;
+
   max-width: 1000px;
 
   height: 90vh;
 
-  background-color: var(--surface);
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
 
   padding: 20px;
 
-  border: 1px solid var(--border);
+  border: 1px solid rgba(196, 155, 53, 0.2);
 
-  border-radius: 12px;
+  border-radius: 14px;
 
   display: flex;
+
   flex-direction: column;
 
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
 
   box-sizing: border-box;
 }
@@ -653,7 +897,9 @@
 
 .viewerHeader {
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
 
   gap: 15px;
@@ -667,7 +913,8 @@
   margin: 0;
 
   font-size: 20px;
-  font-weight: 700;
+
+  font-weight: 800;
 
   color: var(--text);
 
@@ -682,36 +929,56 @@
   padding: 8px 15px;
 
   background-color: #f2f4f7;
+
   color: #344054;
 
   border: 1px solid #d0d5dd;
+
   border-radius: 8px;
 
   cursor: pointer;
 
   font-family: inherit;
+
   font-size: 13px;
-  font-weight: 700;
+
+  font-weight: 750;
 
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .closeBtn:hover {
-  background-color: #eaecf0;
-  border-color: #b8c0cc;
+  background-color: #fffaf0;
+
+  border-color: rgba(196, 155, 53, 0.4);
+
+  color: #8b6b1f;
+
+  box-shadow: 0 3px 8px rgba(196, 155, 53, 0.08);
 }
 
 .closeBtn:focus-visible {
   outline: none;
 
-  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.12);
+  box-shadow: 0 0 0 3px rgba(196, 155, 53, 0.12);
 }
 
 /* =========================================================
-   Responsive Design — Tablet
+   Responsive — Medium Screens
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .documentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   Responsive — Tablet
    ========================================================= */
 
 @media (max-width: 768px) {
@@ -734,19 +1001,15 @@
   }
 
   .welcomeBanner {
-    padding: 28px 25px;
+    padding: 30px 25px;
   }
 
   .welcomeBanner h2 {
-    font-size: 22px;
+    font-size: 23px;
   }
 
   .welcomeBanner p {
     font-size: 14px;
-  }
-
-  .welcomeBanner::before {
-    left: 25px;
   }
 
   .readOnlyNotice {
@@ -757,6 +1020,7 @@
 
   .searchBar {
     flex-direction: column;
+
     align-items: stretch;
   }
 
@@ -777,6 +1041,38 @@
     gap: 16px;
   }
 
+  .docCard {
+    flex-direction: column;
+
+    min-height: auto;
+  }
+
+  .docCover {
+    flex: none;
+
+    width: 100%;
+    min-width: 0;
+
+    height: 280px;
+    min-height: 280px;
+
+    padding: 18px;
+
+    border-right: none;
+
+    border-bottom: 1px solid var(--border);
+  }
+
+  .docCardContent {
+    width: 100%;
+
+    padding: 22px;
+  }
+
+  .docActionBtn {
+    margin-top: 4px;
+  }
+
   .viewerOverlay {
     padding: 12px;
   }
@@ -788,7 +1084,7 @@
 
     height: 95vh;
 
-    border-radius: 10px;
+    border-radius: 11px;
   }
 
   .viewerHeader {
@@ -801,12 +1097,12 @@
 }
 
 /* =========================================================
-   Responsive Design — Small Mobile
+   Responsive — Small Mobile
    ========================================================= */
 
 @media (max-width: 480px) {
   .traineeLayout {
-    border-radius: 8px;
+    border-radius: 9px;
   }
 
   .header {
@@ -849,9 +1145,9 @@
   }
 
   .welcomeBanner {
-    padding: 24px 20px;
+    padding: 25px 20px;
 
-    border-radius: 10px;
+    border-radius: 11px;
   }
 
   .welcomeBanner h2 {
@@ -861,14 +1157,7 @@
   .welcomeBanner p {
     font-size: 13px;
 
-    line-height: 1.55;
-  }
-
-  .welcomeBanner::before {
-    left: 20px;
-    bottom: 14px;
-
-    width: 65px;
+    line-height: 1.6;
   }
 
   .readOnlyNotice {
@@ -881,7 +1170,15 @@
     padding: 18px;
   }
 
-  .docCard {
+  .docCover {
+    height: 250px;
+
+    min-height: 250px;
+
+    padding: 15px;
+  }
+
+  .docCardContent {
     padding: 18px;
   }
 
@@ -889,12 +1186,20 @@
     font-size: 17px;
   }
 
+  .docCategory {
+    font-size: 10px;
+  }
+
+  .docMeta {
+    font-size: 12px;
+  }
+
   .viewerContent {
     padding: 12px;
 
     height: 96vh;
 
-    border-radius: 8px;
+    border-radius: 9px;
   }
 
   .viewerHeader {
@@ -917,68 +1222,143 @@
    ========================================================= */
 
 :global(.darkTheme) .traineeLayout {
-  --page-bg: #0f172a;
-  --surface: #172033;
+  --primary: #f4d98b;
+  --primary-light: #f8e5ad;
+  --action: #d4a848;
+  --action-light: #f4d98b;
+  --action-hover: #e2bd61;
+
+  --page-bg: #050b16;
+  --surface: #0b1626;
+  --surface-soft: #0f1d2f;
+
   --text: #f2f4f7;
   --muted: #98a2b3;
-  --border: #344054;
+  --border: #24364d;
 
   background-color: var(--page-bg);
+
   border-color: var(--border);
+
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
 }
 
+/* =========================================================
+   Dark Theme — Header
+   ========================================================= */
+
 :global(.darkTheme) .header {
-  background-color: #172033;
-  border-bottom-color: #344054;
+  background: linear-gradient(135deg, #071326 0%, #0b1626 100%);
+
+  border-bottom-color: #24364d;
 }
 
 :global(.darkTheme) .brandSSGI {
-  color: #7da2ff;
+  color: #f4d98b;
 }
 
 :global(.darkTheme) .brandSecure {
   color: #f2f4f7;
 }
 
-:global(.darkTheme) .roleBadge {
-  background-color: rgba(21, 94, 239, 0.15);
-  color: #9db9ff;
-  border-color: rgba(77, 124, 255, 0.35);
+:global(.darkTheme) .shieldIcon {
+  color: #d4a848;
 }
+
+/* =========================================================
+   Dark Theme — Role Badge
+   ========================================================= */
+
+:global(.darkTheme) .roleBadge {
+  background: rgba(244, 217, 139, 0.08);
+
+  color: #f4d98b;
+
+  border-color: rgba(244, 217, 139, 0.25);
+}
+
+/* =========================================================
+   Dark Theme — Main
+   ========================================================= */
 
 :global(.darkTheme) .mainContent {
-  background-color: #0f172a;
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(244, 217, 139, 0.04),
+      transparent 25%
+    ),
+    #050b16;
 }
 
+/* =========================================================
+   Dark Theme — Search
+   ========================================================= */
+
 :global(.darkTheme) .searchSection {
-  background-color: #172033;
-  border-color: #344054;
+  background: linear-gradient(145deg, #0b1626, #0f1d2f);
+
+  border-color: #24364d;
 }
 
 :global(.darkTheme) .searchBar input,
 :global(.darkTheme) .searchBar select {
-  background-color: #0f172a;
+  background-color: #07111f;
+
   color: #f2f4f7;
-  border-color: #475467;
+
+  border-color: #344a63;
+}
+
+:global(.darkTheme) .searchBar input::placeholder {
+  color: #667085;
+}
+
+:global(.darkTheme) .searchBar input:hover,
+:global(.darkTheme) .searchBar select:hover {
+  border-color: rgba(244, 217, 139, 0.35);
 }
 
 :global(.darkTheme) .searchBar input:focus,
 :global(.darkTheme) .searchBar select:focus {
-  background-color: #0f172a;
-  border-color: #4d7cff;
+  background-color: #07111f;
+
+  border-color: #d4a848;
+
+  box-shadow: 0 0 0 3px rgba(212, 168, 72, 0.11);
 }
 
+/* =========================================================
+   Dark Theme — Document Cards
+   ========================================================= */
+
 :global(.darkTheme) .docCard {
-  background-color: #172033;
-  border-color: #344054;
+  background: linear-gradient(145deg, #0b1626 0%, #0f1d2f 100%);
+
+  border-color: #24364d;
 }
 
 :global(.darkTheme) .docCard:hover {
-  border-color: #475467;
+  border-color: rgba(244, 217, 139, 0.35);
+
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
 }
 
-:global(.darkTheme) .docTitle,
-:global(.darkTheme) .docMeta strong {
+:global(.darkTheme) .docCover {
+  background:
+    radial-gradient(circle at center, rgba(21, 94, 239, 0.09), transparent 60%),
+    #07111f;
+
+  border-right-color: #24364d;
+
+  border-bottom-color: #24364d;
+}
+
+:global(.darkTheme) .docCardContent {
+  background: linear-gradient(145deg, transparent, rgba(255, 255, 255, 0.01));
+}
+
+:global(.darkTheme) .docTitle {
   color: #f2f4f7;
 }
 
@@ -986,15 +1366,48 @@
   color: #98a2b3;
 }
 
+:global(.darkTheme) .docMeta strong {
+  color: #e4e7ec;
+}
+
 :global(.darkTheme) .docCategory {
-  background-color: #1d2939;
-  color: #b8c0cc;
-  border-color: #344054;
+  background: rgba(244, 217, 139, 0.08);
+
+  color: #f4d98b;
+
+  border-color: rgba(244, 217, 139, 0.2);
+}
+
+/* =========================================================
+   Dark Theme — Action Button
+   ========================================================= */
+
+:global(.darkTheme) .docActionBtn {
+  background: linear-gradient(135deg, #c49b35, #f4d98b, #c49b35);
+
+  color: #071326;
+
+  border-color: rgba(244, 217, 139, 0.45);
+}
+
+:global(.darkTheme) .docActionBtn:hover {
+  background: linear-gradient(135deg, #f4d98b, #ffe7a8, #d9b95f);
+
+  box-shadow: 0 7px 18px rgba(244, 217, 139, 0.12);
+}
+
+/* =========================================================
+   Dark Theme — Viewer
+   ========================================================= */
+
+:global(.darkTheme) .viewerOverlay {
+  background: rgba(0, 0, 0, 0.84);
 }
 
 :global(.darkTheme) .viewerContent {
-  background-color: #172033;
-  border-color: #344054;
+  background: linear-gradient(145deg, #0b1626, #07111f);
+
+  border-color: rgba(244, 217, 139, 0.18);
 }
 
 :global(.darkTheme) .viewerHeader h2 {
@@ -1002,12 +1415,44 @@
 }
 
 :global(.darkTheme) .closeBtn {
-  background-color: #1d2939;
+  background-color: #142236;
+
   color: #d0d5dd;
-  border-color: #475467;
+
+  border-color: #344a63;
 }
 
 :global(.darkTheme) .closeBtn:hover {
-  background-color: #253248;
-  border-color: #667085;
+  background-color: #1a2c43;
+
+  border-color: rgba(244, 217, 139, 0.35);
+
+  color: #f4d98b;
+}
+
+/* =========================================================
+   Dark Theme — Mobile Cover
+   ========================================================= */
+
+@media (max-width: 768px) {
+  :global(.darkTheme) .docCover {
+    border-right: none;
+
+    border-bottom-color: #24364d;
+  }
+}
+
+/* =========================================================
+   Accessibility — Reduced Motion
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .traineeLayout *,
+  .traineeLayout *::before,
+  .traineeLayout *::after {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

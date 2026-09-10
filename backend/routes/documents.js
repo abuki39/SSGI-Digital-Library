@@ -77,16 +77,86 @@ const fileFilter = (req, file, cb) => {
     return cb(new Error("Executable files are explicitly rejected!"), false);
   }
 
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Unsupported file format!"), false);
+  // ----------------------------------------------------------
+  // COVER IMAGE
+  // ----------------------------------------------------------
+
+  if (file.fieldname === "coverImage") {
+    if (
+      ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype) &&
+      [".jpg", ".jpeg", ".png", ".webp"].includes(ext)
+    ) {
+      return cb(null, true);
+    }
+
+    return cb(
+      new Error("Cover image must be a JPG, JPEG, PNG, or WEBP image!"),
+      false,
+    );
   }
+
+  // ----------------------------------------------------------
+  // MAIN DOCUMENT FILE
+  // ----------------------------------------------------------
+
+  if (file.fieldname === "documentFile") {
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      return cb(null, true);
+    }
+
+    return cb(new Error("Unsupported document file format!"), false);
+  }
+
+  return cb(new Error("Unexpected upload field!"), false);
 };
 
 const upload = multer({
   storage,
   fileFilter,
+});
+
+// ============================================================
+// PUBLIC APPROVED DOCUMENTS
+// ============================================================
+//
+// This endpoint is intentionally placed BEFORE
+// authenticateToken so visitors can see approved document
+// cards on the Landing Page without logging in.
+//
+// IMPORTANT:
+// - Only approved documents are returned.
+// - No PDF/document stream is exposed here.
+// - The actual document remains protected.
+// - cover_image is returned so LandingPage can display it.
+// ============================================================
+
+router.get("/public", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT
+        id,
+        title,
+        author,
+        category,
+        cover_image,
+        status
+       FROM documents
+       WHERE LOWER(status) = 'approved'
+       ORDER BY id DESC`,
+    );
+
+    return res.json({
+      success: true,
+      documents: rows,
+    });
+  } catch (err) {
+    console.error("Public documents error:", err);
+
+    return res.status(500).json({
+      success: false,
+      error: "DB Error",
+    });
+  }
 });
 
 // ============================================================
@@ -407,7 +477,16 @@ router.post(
   authorizeRoles(ROLES.LIBRARIAN, ROLES.ADMIN, ROLES.STAFF),
 
   (req, res, next) => {
-    upload.single("documentFile")(req, res, (err) => {
+    upload.fields([
+      {
+        name: "documentFile",
+        maxCount: 1,
+      },
+      {
+        name: "coverImage",
+        maxCount: 1,
+      },
+    ])(req, res, (err) => {
       if (err) {
         console.error("Local Upload Error:", err.message);
 
@@ -442,15 +521,25 @@ router.post(
 
     console.log("TITLE FROM REQUEST:", req.body.title);
 
-    console.log("ORIGINAL FILE NAME:", req.file?.originalname);
+    console.log(
+      "ORIGINAL FILE NAME:",
+      req.files?.documentFile?.[0]?.originalname,
+    );
 
-    console.log("STORED FILE NAME:", req.file?.filename);
+    console.log("STORED FILE NAME:", req.files?.documentFile?.[0]?.filename);
+
+    console.log("COVER IMAGE NAME:", req.files?.coverImage?.[0]?.originalname);
+
+    console.log(
+      "STORED COVER IMAGE NAME:",
+      req.files?.coverImage?.[0]?.filename,
+    );
 
     console.log("==================================");
 
-    // ----------------------------------------------------------
+    // --------------------------------------------------------
     // REQUIRED FIELDS
-    // ----------------------------------------------------------
+    // --------------------------------------------------------
 
     if (!serial_number || !title || !author) {
       return res.status(400).json({
@@ -460,11 +549,11 @@ router.post(
 
     const isExternalLink = String(is_link) === "true";
 
-    // ----------------------------------------------------------
+    // --------------------------------------------------------
     // FILE / LINK VALIDATION
-    // ----------------------------------------------------------
+    // --------------------------------------------------------
 
-    if (!isExternalLink && !req.file) {
+    if (!isExternalLink && !req.files?.documentFile?.[0]) {
       return res.status(400).json({
         error: "A document file or external link is required.",
       });
@@ -476,9 +565,9 @@ router.post(
       });
     }
 
-    // ----------------------------------------------------------
+    // --------------------------------------------------------
     // DEPARTMENT IDS
-    // ----------------------------------------------------------
+    // --------------------------------------------------------
 
     let parsedDeptIds = null;
 
@@ -498,43 +587,47 @@ router.post(
 
     const deptIdStr = department_id ? String(department_id) : null;
 
-    // ============================================================
+    // ========================================================
     // DATABASE INSERT
-    // ============================================================
+    // ========================================================
 
     try {
       const backendPort = process.env.PORT || 5000;
 
-      const pdfUrl = req.file
+      const pdfUrl = req.files?.documentFile?.[0]
         ? `http://localhost:${backendPort}/uploads/${encodeURIComponent(
-            req.file.filename,
+            req.files.documentFile[0].filename,
+          )}`
+        : null;
+
+      const coverImageUrl = req.files?.coverImage?.[0]
+        ? `http://localhost:${backendPort}/uploads/${encodeURIComponent(
+            req.files.coverImage[0].filename,
           )}`
         : null;
 
       const [result] = await db.query(
         `INSERT INTO documents
-          (
-            title,
-            serial_number,
-            author,
-            category,
-            keywords,
-            description,
-            target_role_id,
-            department_id,
-            department_ids,
-            pdf_url,
-            external_url,
-            status,
-            uploaded_by,
-            uploader_email,
-            is_link
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+            (
+              title,
+              serial_number,
+              author,
+              category,
+              keywords,
+              description,
+              target_role_id,
+              department_id,
+              department_ids,
+              pdf_url,
+              cover_image,
+              external_url,
+              status,
+              uploaded_by,
+              uploader_email,
+              is_link
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
         [
-          // FIX:
-          // Store the Document Title entered by the user.
-          // Do NOT use req.file.originalname as the document title.
           title || "External Reference",
 
           serial_number,
@@ -555,6 +648,8 @@ router.post(
 
           pdfUrl,
 
+          coverImageUrl,
+
           isExternalLink ? link_url : null,
 
           req.user?.id || 1,
@@ -565,9 +660,9 @@ router.post(
         ],
       );
 
-      // ----------------------------------------------------------
+      // ------------------------------------------------------
       // RETURN CREATED DOCUMENT
-      // ----------------------------------------------------------
+      // ------------------------------------------------------
 
       const [newDocRows] = await db.query(
         "SELECT * FROM documents WHERE id = ?",
