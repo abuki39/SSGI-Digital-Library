@@ -9,55 +9,183 @@ const SafeDocumentViewer = ({
 }) => {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
-  const [docType, setDocType] = useState(null); // 'pdf', 'unsupported'
+  const [docType, setDocType] = useState(null);
   const [iframeError, setIframeError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (
-      !documentContext ||
-      (!documentContext.pdf_url &&
-        !documentContext.external_url &&
-        !documentContext.is_link)
-    ) {
-      setError("Document URL unavailable");
-      return;
-    }
+    let objectUrl = null;
+    let isMounted = true;
 
-    const url = documentContext.pdf_url || documentContext.external_url;
+    const loadDocument = async () => {
+      setError(null);
+      setIframeError(null);
+      setContent(null);
+      setDocType(null);
+      setLoading(true);
 
-    if (documentContext.is_link) {
-      setDocType("link");
-      setContent(documentContext.external_url || documentContext.pdf_url);
-      return;
-    }
+      if (!documentContext) {
+        setError("No valid document provided.");
+        setLoading(false);
+        return;
+      }
 
-    const ext = url.split(".").pop().toLowerCase();
+      /*
+       * External reference/link documents
+       * do not need the secure stream endpoint.
+       */
+      const isExternalLink =
+        documentContext.is_link === true ||
+        documentContext.is_link === 1 ||
+        documentContext.is_link === "1" ||
+        documentContext.is_link === "true";
 
-    console.log("Attempting to load PDF URL:", documentContext.pdf_url);
+      if (isExternalLink) {
+        const externalUrl =
+          documentContext.external_url ||
+          documentContext.link_url ||
+          documentContext.pdf_url;
 
-    // Only allow PDFs and images/text to be natively viewed
-    if (
-      ext === "pdf" ||
-      ext === "jpg" ||
-      ext === "jpeg" ||
-      ext === "png" ||
-      ext === "svg" ||
-      ext === "txt"
-    ) {
-      setDocType("pdf");
-      setContent(ext === "pdf" ? url + "#toolbar=0" : url);
-    } else {
-      // Includes .docx, .pptx, .xlsx, .zip, etc.
-      setDocType("unsupported");
-    }
+        if (!externalUrl) {
+          setError("External document URL unavailable");
+          setLoading(false);
+          return;
+        }
+
+        if (isMounted) {
+          setDocType("link");
+          setContent(externalUrl);
+          setLoading(false);
+        }
+
+        return;
+      }
+
+      /*
+       * IMPORTANT:
+       * The backend secure stream endpoint uses the document ID.
+       *
+       * GET /api/documents/:id/stream
+       *
+       * The backend returns Base64 encoded document data.
+       */
+      if (!documentContext.id) {
+        setError("Document ID unavailable");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const apiBaseUrl =
+          import.meta.env.VITE_API_URL || "http://127.0.0.1:10000";
+
+        const streamUrl = `${apiBaseUrl}/api/documents/${documentContext.id}/stream`;
+
+        console.log("Loading secure document:", streamUrl);
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(streamUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          let errorMessage = "Failed to load document.";
+
+          try {
+            const errorData = await response.json();
+
+            if (errorData?.error) {
+              errorMessage = errorData.error;
+            }
+          } catch {
+            // Ignore JSON parsing errors
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        /*
+         * Backend returns:
+         *
+         * {
+         *   success: true,
+         *   base64Data: "...",
+         *   pdfBase64: "...",
+         *   pdfData: "..."
+         * }
+         */
+        const data = await response.json();
+
+        const base64Data = data?.base64Data || data?.pdfBase64 || data?.pdfData;
+
+        if (!base64Data) {
+          throw new Error("Document data unavailable from secure server.");
+        }
+
+        /*
+         * Convert Base64 → binary → Blob → temporary browser URL.
+         */
+        const binaryString = window.atob(base64Data);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        const blob = new Blob([bytes], {
+          type: "application/pdf",
+        });
+
+        objectUrl = URL.createObjectURL(blob);
+
+        if (isMounted) {
+          setDocType("pdf");
+          setContent(`${objectUrl}#toolbar=0&navpanes=0&scrollbar=1`);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Secure document loading failed:", err);
+
+        if (isMounted) {
+          setError(
+            err.message || "Unable to load the document. Please try again.",
+          );
+          setLoading(false);
+        }
+      }
+    };
+
+    loadDocument();
+
+    /*
+     * Clean up the temporary Blob URL when the viewer closes
+     * or another document is selected.
+     */
+    return () => {
+      isMounted = false;
+
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
   }, [documentContext]);
 
   if (!documentContext) {
-    return <div>No valid document URL provided.</div>;
+    return <div>No valid document provided.</div>;
   }
 
   const timestamp = new Date().toISOString();
-  const watermarkString = `Confidential - ${userEmail} - ${ipAddress} - ${timestamp}`;
+
+  const watermarkString = `Confidential - ${
+    userEmail || "Authorized User"
+  } - ${ipAddress || "Protected IP"} - ${timestamp}`;
+
   const watermarkRepeats = Array(30).fill(watermarkString);
 
   return (
@@ -65,6 +193,7 @@ const SafeDocumentViewer = ({
       className={styles.viewerContainer}
       onContextMenu={(e) => e.preventDefault()}
     >
+      {/* Viewer Header */}
       <div
         style={{
           display: "grid",
@@ -100,15 +229,23 @@ const SafeDocumentViewer = ({
                 (e.currentTarget.style.backgroundColor = "#edf2f7")
               }
             >
-              <span style={{ fontSize: "1.1rem" }}>&larr;</span> Back to
-              Dashboard
+              <span style={{ fontSize: "1.1rem" }}>&larr;</span>
+              Back to Dashboard
             </button>
           )}
         </div>
+
         <div style={{ textAlign: "center" }}>
-          <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#2d3748" }}>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "1.5rem",
+              color: "#2d3748",
+            }}
+          >
             Secure Document Viewer
           </h2>
+
           <h3
             style={{
               color: "#718096",
@@ -123,61 +260,65 @@ const SafeDocumentViewer = ({
             </span>
           </h3>
         </div>
+
         <div>{/* Empty space for symmetric centering */}</div>
       </div>
 
-      {error ? (
-        <div
-          className={styles.noSelect}
-          style={{
-            marginTop: "20px",
-            padding: "20px",
-            backgroundColor: "#f7fafc",
-            border: "1px solid #e2e8f0",
-            borderRadius: "8px",
-            color: "red",
-            fontWeight: "500",
-          }}
-        >
-          {error}
-        </div>
-      ) : docType === "unsupported" ? (
+      {/* Loading */}
+      {loading && (
         <div
           className={styles.noSelect}
           style={{
             marginTop: "20px",
             padding: "40px",
-            backgroundColor: "#fff5f5",
-            border: "1px solid #fed7d7",
+            backgroundColor: "#f7fafc",
+            border: "1px solid #e2e8f0",
             borderRadius: "8px",
+            color: "#4a5568",
+            fontWeight: "500",
             textAlign: "center",
           }}
         >
-          <h4
-            className={styles.noSelect}
+          <div
             style={{
-              color: "#c53030",
-              marginBottom: "20px",
-              fontSize: "1.2rem",
+              fontSize: "1.1rem",
+              marginBottom: "10px",
             }}
           >
-            Security Policy Restriction
-          </h4>
-          <p
-            className={styles.noSelect}
+            Loading secure document...
+          </div>
+
+          <div
             style={{
-              color: "#4a5568",
-              maxWidth: "600px",
-              margin: "0 auto",
-              lineHeight: "1.6",
+              fontSize: "0.9rem",
+              color: "#718096",
             }}
           >
-            Native inline viewing is not supported for this format. Downloading
-            is disabled to protect intellectual property. Please request a PDF
-            version from the Administration.
-          </p>
+            Please wait while the document is securely prepared for viewing.
+          </div>
         </div>
-      ) : docType === "link" ? (
+      )}
+
+      {/* Error */}
+      {!loading && error && (
+        <div
+          className={styles.noSelect}
+          style={{
+            marginTop: "20px",
+            padding: "20px",
+            backgroundColor: "#fff5f5",
+            border: "1px solid #fed7d7",
+            borderRadius: "8px",
+            color: "#c53030",
+            fontWeight: "500",
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* External Link */}
+      {!loading && !error && docType === "link" && content && (
         <div
           className={styles.noSelect}
           style={{
@@ -239,9 +380,11 @@ const SafeDocumentViewer = ({
               fontSize: "1.1rem",
             }}
           >
-            This resource is hosted externally at: <br />
+            This resource is hosted externally at:
+            <br />
             <strong className={styles.noSelect}>{content}</strong>
           </p>
+
           <a
             href={content}
             className={styles.noSelect}
@@ -260,6 +403,7 @@ const SafeDocumentViewer = ({
           >
             Open Reference
           </a>
+
           <div
             className={`${styles.watermarkOverlay} ${styles.noSelect}`}
             style={{ pointerEvents: "none" }}
@@ -274,10 +418,16 @@ const SafeDocumentViewer = ({
             ))}
           </div>
         </div>
-      ) : docType === "pdf" && content ? (
+      )}
+
+      {/* Secure PDF Viewer */}
+      {!loading && !error && docType === "pdf" && content && (
         <div
           className={`${styles.canvasWrapper} ${styles.noSelect}`}
-          style={{ position: "relative", marginTop: "10px" }}
+          style={{
+            position: "relative",
+            marginTop: "10px",
+          }}
         >
           {iframeError && (
             <div
@@ -303,6 +453,7 @@ const SafeDocumentViewer = ({
           <object
             className={styles.noSelect}
             data={content}
+            type="application/pdf"
             title={documentContext.title || "Secure Document"}
             style={{
               width: "100%",
@@ -311,21 +462,29 @@ const SafeDocumentViewer = ({
               border: "none",
             }}
             onError={() => {
-              console.error("Object failed to load:", content);
-              setIframeError(
-                `Failed to load document from: ${documentContext.pdf_url}`,
-              );
+              console.error("PDF object failed to load:", content);
+
+              setIframeError("The PDF could not be displayed by the browser.");
             }}
           >
-            <p className={styles.noSelect}>
-              Your browser does not support PDFs. Please download the PDF to
-              view it.
+            <p
+              className={styles.noSelect}
+              style={{
+                padding: "20px",
+                textAlign: "center",
+                color: "#4a5568",
+              }}
+            >
+              Your browser does not support inline PDF viewing.
             </p>
           </object>
 
+          {/* Security Watermark */}
           <div
             className={`${styles.watermarkOverlay} ${styles.noSelect}`}
-            style={{ pointerEvents: "none" }}
+            style={{
+              pointerEvents: "none",
+            }}
           >
             {watermarkRepeats.map((text, idx) => (
               <div
@@ -336,21 +495,6 @@ const SafeDocumentViewer = ({
               </div>
             ))}
           </div>
-        </div>
-      ) : (
-        <div
-          className={styles.noSelect}
-          style={{
-            marginTop: "20px",
-            padding: "20px",
-            backgroundColor: "#f7fafc",
-            border: "1px solid #e2e8f0",
-            borderRadius: "8px",
-            color: "#4a5568",
-            fontWeight: "500",
-          }}
-        >
-          Loading document...
         </div>
       )}
     </div>

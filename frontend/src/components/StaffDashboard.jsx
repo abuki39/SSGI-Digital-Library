@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./StaffDashboard.module.css";
 import NotificationCenter from "./NotificationCenter";
+import NotificationBell from "./NotificationBell";
 
 const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
   const [departments, setDepartments] = useState([]);
@@ -48,6 +49,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
           },
         },
       );
+
       if (res.ok) {
         setMyDocuments(await res.json());
       }
@@ -59,8 +61,11 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
   const fetchRoles = async () => {
     try {
       const res = await fetch(import.meta.env.VITE_API_URL + "/api/roles", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       if (res.ok) {
         setRoles(await res.json());
       }
@@ -74,9 +79,12 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
       const res = await fetch(
         import.meta.env.VITE_API_URL + "/api/departments",
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
+
       if (res.ok) {
         setDepartments(await res.json());
       }
@@ -88,9 +96,12 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
       const res = await fetch(
         import.meta.env.VITE_API_URL + "/api/staff-departments",
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
+
       if (res.ok) {
         setStaffDepartments(await res.json());
       }
@@ -120,6 +131,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
 
     try {
       const formData = new FormData();
+
       formData.append("title", title);
       formData.append("author", author);
       formData.append("category", category);
@@ -135,7 +147,10 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
       const isTrainee = targetRoleId === "1";
       const isStaff = targetRoleId === "2";
 
-      if (targetRoleId) formData.append("target_role_id", targetRoleId);
+      if (targetRoleId) {
+        formData.append("target_role_id", targetRoleId);
+      }
+
       if ((isTrainee || isStaff) && departmentIds && departmentIds.length > 0) {
         formData.append("department_ids", JSON.stringify(departmentIds));
       }
@@ -156,6 +171,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
         setMessage(
           "Document submitted successfully! It is now pending approval.",
         );
+
         setTitle("");
         setAuthor("");
         setKeywords("");
@@ -166,16 +182,20 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
         setTargetRoleId("");
         setDepartmentIds([]);
         setIsLink(false);
+
         if (document.getElementById("staffFileInput")) {
           document.getElementById("staffFileInput").value = "";
         }
+
         fetchMyDocuments();
+
         setTimeout(() => {
           setIsUploadModalOpen(false);
           setMessage("");
         }, 2000);
       } else {
         const errorData = await res.json().catch(() => ({}));
+
         setMessage(`Error: ${errorData.error || "Failed to submit document"}`);
       }
     } catch (err) {
@@ -193,16 +213,40 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
     const matchesSearch =
       doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.author.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesCategory = filterCategory
       ? doc.category === filterCategory
       : true;
+
     return matchesSearch && matchesCategory;
   });
 
   const getStatusClass = (status) => {
-    if (status === "approved") return styles.statusApproved;
-    if (status === "rejected") return styles.statusRejected;
+    const normalizedStatus = String(status || "").toLowerCase();
+
+    if (normalizedStatus === "approved") {
+      return styles.statusApproved;
+    }
+
+    if (normalizedStatus === "rejected") {
+      return styles.statusRejected;
+    }
+
     return styles.statusPending;
+  };
+
+  const getStatusLabel = (status) => {
+    const normalizedStatus = String(status || "").toLowerCase();
+
+    if (normalizedStatus === "approved") {
+      return "Approved";
+    }
+
+    if (normalizedStatus === "rejected") {
+      return "Rejected";
+    }
+
+    return "Pending";
   };
 
   return (
@@ -223,11 +267,13 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
               d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
             />
           </svg>
+
           <div className={styles.brandText}>
             <span className={styles.brandSSGI}>SSGI</span>
             <span className={styles.brandSecure}> Digital Library</span>
           </div>
         </div>
+
         <div
           className={styles.headerActions}
           style={{
@@ -239,23 +285,50 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
         >
           <span className={styles.greeting}>Welcome, Staff Member</span>
 
-          <button
-            className={styles.signOutBtn}
+          <div
             style={{
+              display: "flex",
+              alignItems: "center",
               marginBottom: "10px",
+              borderRadius: "8px",
               backgroundColor:
                 activeView === "notifications" ? "#10b981" : "#374151",
+              color: "#ffffff",
             }}
-            onClick={() =>
-              setActiveView(
-                activeView === "inventory" ? "notifications" : "inventory",
-              )
-            }
           >
-            {activeView === "inventory"
-              ? "Notifications"
-              : "Dashboard Inventory"}
-          </button>
+            <NotificationBell
+              token={token}
+              userRole="Staff Members"
+              title="Staff Notifications"
+              onClick={() =>
+                setActiveView(
+                  activeView === "notifications"
+                    ? "inventory"
+                    : "notifications",
+                )
+              }
+            />
+
+            <span
+              style={{
+                paddingRight: "12px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+              onClick={() =>
+                setActiveView(
+                  activeView === "notifications"
+                    ? "inventory"
+                    : "notifications",
+                )
+              }
+            >
+              {activeView === "inventory"
+                ? "Notifications"
+                : "Dashboard Inventory"}
+            </span>
+          </div>
 
           <button
             className={styles.uploadBtn}
@@ -264,6 +337,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
           >
             Upload Document
           </button>
+
           <button
             className={styles.signOutBtn}
             style={{ marginBottom: "10px" }}
@@ -271,6 +345,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
           >
             Settings
           </button>
+
           <button
             className={styles.signOutBtn}
             onClick={handleSignOut}
@@ -296,6 +371,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
+
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
@@ -319,20 +395,27 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   <div key={doc.id} className={styles.docCard}>
                     <div className={styles.docHeader}>
                       <h3 className={styles.docTitle}>{doc.title}</h3>
+
                       <span
-                        className={`${styles.statusBadge} ${getStatusClass(doc.status)}`}
+                        className={`${styles.statusBadge} ${getStatusClass(
+                          doc.status,
+                        )}`}
                       >
-                        {doc.status}
+                        {getStatusLabel(doc.status)}
                       </span>
                     </div>
+
                     <span className={styles.docCategory}>{doc.category}</span>
+
                     <div className={styles.docMeta}>
                       <p>
                         <strong>Author:</strong> {doc.author}
                       </p>
+
                       <p>
                         <strong>Serial:</strong> {doc.serial_number}
                       </p>
+
                       <p>
                         <strong>Uploaded:</strong>{" "}
                         {new Date(doc.created_at).toLocaleDateString()}
@@ -367,6 +450,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h2 className={styles.modalHeader}>Upload New Resource</h2>
+
             <form onSubmit={handleSave}>
               {message && (
                 <p
@@ -379,8 +463,12 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   {message}
                 </p>
               )}
+
               <div className={styles.formGroup}>
-                <label>Document Title</label>
+                <label>
+                  Document Title <span className={styles.requiredMark}>*</span>
+                </label>
+
                 <input
                   type="text"
                   placeholder="Enter title"
@@ -389,8 +477,12 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   required
                 />
               </div>
+
               <div className={styles.formGroup}>
-                <label>Author</label>
+                <label>
+                  Author <span className={styles.requiredMark}>*</span>
+                </label>
+
                 <input
                   type="text"
                   placeholder="Enter author"
@@ -399,8 +491,10 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   required
                 />
               </div>
+
               <div className={styles.formGroup}>
                 <label>Category</label>
+
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
@@ -411,8 +505,10 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   <option>Academic Documents</option>
                 </select>
               </div>
+
               <div className={styles.formGroup}>
                 <label>Keywords (comma separated)</label>
+
                 <input
                   type="text"
                   placeholder="e.g., mapping, topography"
@@ -420,22 +516,26 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   onChange={(e) => setKeywords(e.target.value)}
                 />
               </div>
+
               <div className={styles.formGroup}>
                 <label>Target Role (Who can view this?)</label>
+
                 <select
                   value={targetRoleId}
                   onChange={(e) => setTargetRoleId(e.target.value)}
                 >
-                  <option value="">Public / All Roles</option>
+                  <option value="">All Roles</option>
                   <option value="1">Trainee</option>
                   <option value="2">Staff</option>
                   <option value="3">Librarian</option>
                   <option value="4">Admin</option>
                 </select>
               </div>
+
               {(targetRoleId === "1" || targetRoleId === "2") && (
                 <div className={styles.formGroup}>
                   <label>Department Access</label>
+
                   <p
                     style={{
                       fontSize: "12px",
@@ -445,6 +545,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                     Hold Ctrl/Cmd to select multiple. Leave empty for
                     Global/All.
                   </p>
+
                   <select
                     multiple
                     value={departmentIds}
@@ -472,8 +573,12 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   </select>
                 </div>
               )}
+
               <div className={styles.formGroup}>
-                <label>Serial Number</label>
+                <label>
+                  Serial Number <span className={styles.requiredMark}>*</span>
+                </label>
+
                 <input
                   type="text"
                   placeholder="e.g., SR-12345"
@@ -493,7 +598,11 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                 }}
               >
                 <label
-                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                  }}
                 >
                   <input
                     type="radio"
@@ -502,8 +611,13 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                   />
                   Upload Document
                 </label>
+
                 <label
-                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                  }}
                 >
                   <input
                     type="radio"
@@ -516,7 +630,10 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
 
               {!isLink ? (
                 <div className={styles.formGroup}>
-                  <label>Document File</label>
+                  <label>
+                    Document File <span className={styles.requiredMark}>*</span>
+                  </label>
+
                   <input
                     id="staffFileInput"
                     type="file"
@@ -528,7 +645,11 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
               ) : (
                 <>
                   <div className={styles.formGroup}>
-                    <label>External URL</label>
+                    <label>
+                      External URL{" "}
+                      <span className={styles.requiredMark}>*</span>
+                    </label>
+
                     <input
                       type="url"
                       placeholder="https://example.com/reference"
@@ -537,8 +658,10 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                       required
                     />
                   </div>
+
                   <div className={styles.formGroup}>
                     <label>External Information / Description</label>
+
                     <textarea
                       placeholder="Add notes, context, or metadata about this reference..."
                       value={description}
@@ -563,6 +686,7 @@ const StaffDashboard = ({ token, onNavigateSettings, onViewDocument }) => {
                 >
                   Cancel
                 </button>
+
                 <button type="submit" className={styles.uploadBtn}>
                   Submit for Review
                 </button>

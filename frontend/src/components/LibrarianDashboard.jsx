@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./LibrarianDashboard.module.css";
 import api from "../api";
 import NotificationCenter from "./NotificationCenter";
-
+import NotificationBell from "./NotificationBell";
 const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
   const currentTheme = localStorage.getItem("theme_preference") || "light";
   const isDark = currentTheme === "dark";
@@ -393,23 +393,50 @@ const LibrarianDashboard = ({ token, onNavigateSettings, user }) => {
           <span className={styles.roleBadge}>Librarian Account</span>
 
           {/* Navigation Toggle between Inventory and Notifications */}
-          <button
-            className={styles.signOutBtn}
+          <div
             style={{
+              display: "flex",
+              alignItems: "center",
               marginBottom: "10px",
+              borderRadius: "8px",
               backgroundColor:
                 activeView === "notifications" ? "#10b981" : "#374151",
+              color: "#ffffff",
             }}
-            onClick={() =>
-              setActiveView(
-                activeView === "inventory" ? "notifications" : "inventory",
-              )
-            }
           >
-            {activeView === "inventory"
-              ? "Notifications"
-              : "Dashboard Inventory"}
-          </button>
+            <NotificationBell
+              token={token}
+              userRole="Librarians"
+              title="Librarian Notifications"
+              onClick={() =>
+                setActiveView(
+                  activeView === "notifications"
+                    ? "inventory"
+                    : "notifications",
+                )
+              }
+            />
+
+            <span
+              style={{
+                paddingRight: "12px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+              onClick={() =>
+                setActiveView(
+                  activeView === "notifications"
+                    ? "inventory"
+                    : "notifications",
+                )
+              }
+            >
+              {activeView === "inventory"
+                ? "Notifications"
+                : "Dashboard Inventory"}
+            </span>
+          </div>
 
           <button
             className={styles.signOutBtn}

@@ -1,97 +1,360 @@
+/* =========================================================
+   SSGI SecureDoc — Document Viewer
+   Design System
+   ========================================================= */
+
 .viewerContainer {
+  --primary: #0b1f3a;
+  --action: #155eef;
+  --accent: #d4a72c;
+  --page-bg: #f5f7fa;
+  --surface: #ffffff;
+  --text: #172033;
+  --muted: #667085;
+  --border: #e4e7ec;
+  --disabled: #98a2b3;
+
   position: relative;
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  background-color: #e2e8f0;
+
+  background: var(--page-bg);
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  box-shadow:
+    0 2px 4px rgba(16, 24, 40, 0.04),
+    0 8px 24px rgba(16, 24, 40, 0.06);
+
   display: flex;
   flex-direction: column;
-  
+
   height: auto;
   min-height: 100%;
   overflow-y: auto;
-  
+
   /* Prevent text highlighting and copying */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   Document Canvas Wrapper
+   ========================================================= */
+
+.canvasWrapper {
+  position: relative;
+  width: 100%;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  box-shadow:
+    0 1px 3px rgba(16, 24, 40, 0.05),
+    0 4px 10px rgba(16, 24, 40, 0.04);
+
+  overflow: hidden;
+
+  /* Prevent interaction like text selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   Document Canvas
+   ========================================================= */
+
+.documentCanvas {
+  width: 100%;
+  height: auto;
+  display: block;
+
+  /* Prevent accidental dragging */
+  -webkit-user-drag: none;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
 }
 
-.canvasWrapper {
-  position: relative;
-  width: 100%;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Prevent interaction like right-click saving */
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.documentCanvas {
-  width: 100%;
-  height: auto;
-  display: block;
-}
+/* =========================================================
+   Watermark Overlay
+   ========================================================= */
 
 .watermarkOverlay {
   position: absolute;
   top: 0;
   left: 0;
+
   width: 100%;
   height: 100%;
-  pointer-events: none; /* Allows clicking through to canvas if needed, prevents selection */
+
+  pointer-events: none;
+
   overflow: hidden;
+
   z-index: 9999;
+
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  opacity: 0.15; /* Subtle enough to read behind, strong enough to deter */
+
+  opacity: 0.15;
+
+  /* Prevent watermark selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
+
+/* =========================================================
+   Watermark Text
+   ========================================================= */
 
 .watermarkText {
   transform: rotate(-30deg);
+
   font-size: 1.2rem;
-  font-weight: bold;
-  color: #000;
+  font-weight: 700;
+
+  color: var(--primary);
+
   white-space: nowrap;
+
   margin: 40px;
+
+  opacity: 0.9;
+
+  letter-spacing: 0.02em;
+
   /* Prevent copying watermark text */
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
+
+/* =========================================================
+   Viewer Controls
+   ========================================================= */
 
 .controls {
   margin-top: 20px;
+
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
+
+  padding: 12px 14px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+
+  box-sizing: border-box;
 }
+
+/* =========================================================
+   Control Buttons
+   ========================================================= */
 
 .controls button {
-  padding: 8px 16px;
-  background-color: #2b6cb0;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  padding: 9px 17px;
+
+  background-color: var(--action);
+  color: #ffffff;
+
+  border: 1px solid var(--action);
+  border-radius: 8px;
+
   cursor: pointer;
-  font-weight: bold;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
 }
+
+.controls button:hover:not(:disabled) {
+  background-color: #0f4fd4;
+  border-color: #0f4fd4;
+
+  box-shadow: 0 4px 10px rgba(21, 94, 239, 0.18);
+
+  transform: translateY(-1px);
+}
+
+.controls button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.controls button:focus-visible {
+  outline: none;
+
+  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.18);
+}
+
+/* =========================================================
+   Disabled Controls
+   ========================================================= */
 
 .controls button:disabled {
-  background-color: #a0aec0;
+  background-color: var(--disabled);
+  border-color: var(--disabled);
+
+  color: #ffffff;
+
   cursor: not-allowed;
+
+  box-shadow: none;
 }
 
+/* =========================================================
+   Control Text
+   ========================================================= */
+
 .controls span {
-  font-weight: bold;
+  color: var(--text);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  line-height: 1.5;
 }
+
+/* =========================================================
+   No Select Utility
+   ========================================================= */
 
 .noSelect {
   user-select: none !important;
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
+}
+
+/* =========================================================
+   Dark Theme
+   ========================================================= */
+
+:global(.darkTheme) .viewerContainer {
+  --page-bg: #0f172a;
+  --surface: #172033;
+  --text: #f2f4f7;
+  --muted: #98a2b3;
+  --border: #344054;
+
+  background: var(--page-bg);
+  border-color: var(--border);
+
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+:global(.darkTheme) .canvasWrapper {
+  background: #ffffff;
+  border-color: #475467;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+:global(.darkTheme) .watermarkText {
+  color: #0b1f3a;
+}
+
+:global(.darkTheme) .controls {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+:global(.darkTheme) .controls span {
+  color: var(--text);
+}
+
+/* =========================================================
+   Responsive — Tablet
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .viewerContainer {
+    max-width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .controls {
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px 12px;
+  }
+
+  .controls button {
+    padding: 10px 15px;
+  }
+
+  .watermarkText {
+    font-size: 1rem;
+    margin: 30px;
+  }
+}
+
+/* =========================================================
+   Responsive — Mobile
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .viewerContainer {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .canvasWrapper {
+    border-radius: 6px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .controls button {
+    width: 100%;
+    padding: 11px 14px;
+  }
+
+  .controls span {
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .watermarkText {
+    font-size: 0.85rem;
+    margin: 20px;
+  }
 }

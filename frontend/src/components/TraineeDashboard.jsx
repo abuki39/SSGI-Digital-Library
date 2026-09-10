@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./TraineeDashboard.module.css";
 import SafeDocumentViewer from "./SafeDocumentViewer";
 import NotificationCenter from "./NotificationCenter";
-
+import NotificationBell from "./NotificationBell";
 const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
   const [documents, setDocuments] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,22 +108,44 @@ const TraineeDashboard = ({ token, user, onNavigateSettings }) => {
         >
           <span className={styles.roleBadge}>Trainee Account</span>
 
-          <button
-            className={styles.signOutBtn}
+          <div
             style={{
+              display: "flex",
+              alignItems: "center",
               marginBottom: "10px",
+              borderRadius: "8px",
               backgroundColor:
                 activeView === "notifications" ? "#10b981" : "#374151",
+              color: "#ffffff",
             }}
-            onClick={() =>
-              setActiveView(
-                activeView === "library" ? "notifications" : "library",
-              )
-            }
           >
-            {activeView === "library" ? "Notifications" : "Training Library"}
-          </button>
+            <NotificationBell
+              token={token}
+              userRole="Registered Trainees/Interns"
+              title="Trainee Notifications"
+              onClick={() =>
+                setActiveView(
+                  activeView === "notifications" ? "library" : "notifications",
+                )
+              }
+            />
 
+            <span
+              style={{
+                paddingRight: "12px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+              onClick={() =>
+                setActiveView(
+                  activeView === "notifications" ? "library" : "notifications",
+                )
+              }
+            >
+              {activeView === "library" ? "Notifications" : "Training Library"}
+            </span>
+          </div>
           <button
             className={styles.signOutBtn}
             style={{ marginBottom: "10px", backgroundColor: "#4b5563" }}

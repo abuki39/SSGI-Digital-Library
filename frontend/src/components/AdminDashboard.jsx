@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./AdminDashboard.module.css";
 import NotificationCenter from "./NotificationCenter"; // Imported your notification component
-
+import NotificationBell from "./NotificationBell";
 const AdminDashboard = ({ onNavigateSettings }) => {
   const [users, setUsers] = useState([]);
   const [logs, setLogs] = useState([]);
@@ -555,12 +555,36 @@ const AdminDashboard = ({ onNavigateSettings }) => {
           >
             Departments
           </button>
-          <button
-            className={`${styles.navItem} ${activeTab === "notifications" ? styles.navItemActive : ""}`}
-            onClick={() => setActiveTab("notifications")}
+          <div
+            className={`${styles.navItem} ${
+              activeTab === "notifications" ? styles.navItemActive : ""
+            }`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: 0,
+            }}
           >
-            Notifications
-          </button>
+            <NotificationBell
+              token={token}
+              userRole="System Administrators"
+              title="Administrator Notifications"
+              onClick={() => setActiveTab("notifications")}
+            />
+
+            <span
+              style={{
+                cursor: "pointer",
+                flex: 1,
+                padding: "12px 10px",
+                fontWeight: "600",
+              }}
+              onClick={() => setActiveTab("notifications")}
+            >
+              Notifications
+            </span>
+          </div>
           <button
             className={`${styles.navItem} ${activeTab === "logs" ? styles.navItemActive : ""}`}
             onClick={() => setActiveTab("logs")}
